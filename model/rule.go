@@ -2,7 +2,7 @@ package model
 
 import "fmt"
 
-type Rule struct {
+type Rules struct {
 	// rule confition
 	MinUpdateVersionCode string `json:"min_update_version_code"`
 	MaxUpdateVersionCode string `json:"max_update_version_code"`
@@ -18,10 +18,11 @@ type Rule struct {
 	Title             string `json:"title"`
 	UpdateTips        string `json:"update_tips"`
 }
-func GetAllRules() *[]Rule {
-	rules := []Rule{}
 
-	rules = append(rules, Rule{
+func GetAllRules() *[]Rules {
+	rules := []Rules{}
+
+	rules = append(rules, Rules{
 		MinUpdateVersionCode: "8.4.0",
 		MaxUpdateVersionCode: "8.8.8",
 		MinOsApi:             10,
@@ -36,7 +37,7 @@ func GetAllRules() *[]Rule {
 		UpdateTips:           "fdsafdas",
 	})
 
-	rules = append(rules, Rule{
+	rules = append(rules, Rules{
 		MinUpdateVersionCode: "8.4.0",
 		MaxUpdateVersionCode: "8.8.8",
 		MinOsApi:             10,
@@ -51,7 +52,7 @@ func GetAllRules() *[]Rule {
 		UpdateTips:           "fdsafdas",
 	})
 
-	rules = append(rules, Rule{
+	rules = append(rules, Rules{
 		MinUpdateVersionCode: "8.4.0",
 		MaxUpdateVersionCode: "8.8.8",
 		MinOsApi:             10,
@@ -66,7 +67,7 @@ func GetAllRules() *[]Rule {
 		UpdateTips:           "fdsafdas",
 	})
 
-	rules = append(rules, Rule{
+	rules = append(rules, Rules{
 		MinUpdateVersionCode: "8.4.0",
 		MaxUpdateVersionCode: "8.8.8",
 		MinOsApi:             10,
@@ -95,7 +96,6 @@ type SingleRule struct {
 	Res Response
 	Hit Conditionset
 }
-
 
 // 获取所有规则
 func GetRulesFromFile() *[]SingleRule {
