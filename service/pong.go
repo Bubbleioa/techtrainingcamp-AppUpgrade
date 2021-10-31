@@ -1,34 +1,113 @@
 package service
 
 import (
-	"techtrainingcamp-AppUpgrade/model"
-
+	"database/sql"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/cast"
+	"log"
+	"strconv"
+	"strings"
+	"techtrainingcamp-AppUpgrade/model"
 )
 
 func Pong(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "pong"})
 }
-
+func versionComp(s1 string, s2 string, flag bool) bool {
+	arr1 := strings.Split(s1, ".")
+	arr2 := strings.Split(s2, ".")
+	for index := 0; index < len(arr1); index++ {
+		intTemp, err := strconv.Atoi(arr1[index])
+		if err != nil {
+			log.Panic(err.Error())
+		}
+		arr1[index] = strconv.Itoa(intTemp)
+	}
+	for index := 0; index < len(arr2); index++ {
+		intTemp, err := strconv.Atoi(arr2[index])
+		if err != nil {
+			log.Panic(err.Error())
+		}
+		arr2[index] = strconv.Itoa(intTemp)
+	}
+	arrLen := len(arr2)
+	if len(arr1) < len(arr2) {
+		arrLen = len(arr1)
+	}
+	if flag {
+		for index := 0; index < arrLen; index++ {
+			if strings.Compare(arr1[index], arr2[index]) < 0 {
+				return false
+			}
+		}
+		return true
+	} else {
+		for index := 0; index < arrLen; index++ {
+			if strings.Compare(arr1[index], arr2[index]) > 0 {
+				return false
+			}
+		}
+		return true
+	}
+}
 func Hit(c *gin.Context) {
 
 	var respUrl string
-	appVersion := c.Query("appVersion")
-	userDID := c.Query("userDID")
+	var respUpdateVersionCode string
+	var respMd5 string
+	var respTitle string
+	var respUpdateTips string
+	devicePlatform := c.Query("devicePlatform")
+	deviceId := c.Query("deviceId")
+	osApi := c.Query("osApi")
+	channel := c.Query("channel")
+	updateVersionCode := c.Query("updateVersionCode")
+	cpuArch := c.Query("cpuArch")
 	rules := model.GetAllRules()
-
 	for index := 0; index < len(*rules); index++ {
-		if cast.ToInt(userDID) < (*rules)[index].MinUserDID || cast.ToInt(userDID) > (*rules)[index].MaxUserDID {
-			continue
+		if strings.Compare(devicePlatform, (*rules)[index].Platform) == 0 &&
+			strings.Compare(cpuArch, (*rules)[index].CpuArch) == 0 &&
+			strings.Compare(channel, (*rules)[index].Channel) == 0 {
+			constr := "root:ru19870528@tcp(127.0.0.1:3306)/ginsql"
+			//打开连接
+			db, err := sql.Open("mysql", constr) //返回mysql实例db
+			if err != nil {
+				log.Panic(err.Error())
+				return
+			}
+			rows, err := db.Query("select device_id_list from device_id where device_id_list=" + deviceId)
+			if err != nil {
+				log.Panic(err.Error())
+				return
+			}
+			var flag bool
+			flag = false
+			for rows.Next() {
+				var id string
+				err := rows.Scan(&id) //读取rows里面的数据分别赋值给结构体属性
+				if err != nil {
+					log.Panic(err.Error())
+					return
+				}
+				if id == deviceId {
+					flag = true
+					break
+				}
+			}
+			if flag && cast.ToInt(osApi) >= (*rules)[index].MinOsApi &&
+				cast.ToInt(osApi) <= (*rules)[index].MaxOsApi &&
+				versionComp(updateVersionCode, (*rules)[index].MinUpdateVersionCode, true) &&
+				versionComp(updateVersionCode, (*rules)[index].MaxUpdateVersionCode, false) {
+				respUrl = (*rules)[index].DownloadUrl
+				respUpdateVersionCode = (*rules)[index].UpdateVersionCode
+				respMd5 = (*rules)[index].Md5
+				respTitle = (*rules)[index].Title
+				respUpdateTips = (*rules)[index].UpdateTips
+				break
+			}
 		}
-
-		if cast.ToInt(appVersion) < (*rules)[index].MinVersion || cast.ToInt(appVersion) > (*rules)[index].MaxVersion {
-			continue
-		}
-
-		respUrl = (*rules)[index].GrayLink
-		break
 	}
-	c.JSON(200, gin.H{"downloadUrl": respUrl})
+	c.JSON(200, gin.H{"downloadUrl": respUrl, "UpdateVersionCode": respUpdateVersionCode,
+		"Md5": respMd5, "Title": respTitle, "UpdateTips": respUpdateTips})
 }
