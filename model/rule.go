@@ -1,33 +1,42 @@
 package model
 
-type Rule struct {
-	// rule confition
-	MinVersion int `json:"min_version"`
-	MaxVersion int `json:"max_version"`
-	MinUserDID int `json:"min_user_did"`
-	MaxUserDID int `json:"max_user_did"`
+import "fmt"
 
-	// apk or ipk link
-	GrayLink string `json:"gray_link"`
+// 返回类型的映射
+type Response map[string]string
+
+// 规则集的映射
+type Conditionset map[string]IMatcher
+
+// 单条规则
+type SingleRule struct {
+	Res Response
+	Hit Conditionset
 }
 
-func GetAllRules() *[]Rule {
-	rules := []Rule{}
-
-	rules = append(rules, Rule{
-		MinVersion: 10,
-		MaxVersion: 20,
-		MinUserDID: 10,
-		MaxUserDID: 20,
-		GrayLink:   "https://baidu.com",
-	})
-	rules = append(rules, Rule{
-		MinVersion: 0,
-		MaxVersion: 9,
-		MinUserDID: 0,
-		MaxUserDID: 9,
-		GrayLink:   "https://baidu.com",
-	})
-
-	return &rules
+// 获取所有规则
+func GetAllRules() *[]SingleRule {
+	rules, err := resolveJson("config/rules.json")
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+	ruleset := []SingleRule{}
+	for _, v := range rules {
+		rule := SingleRule{}
+		rule.Res = make(Response)
+		rule.Hit = make(Conditionset)
+		rule.Res["update_version_code"] = v.UpdateVersionCode
+		rule.Res["md5"] = v.MD5
+		rule.Res["download_url"] = v.DownloadURL
+		rule.Res["title"] = v.Title
+		rule.Res["update_tips"] = v.UpdateTips
+		rule.Hit, err = RuleFactory(&v)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil
+		}
+		ruleset = append(ruleset, rule)
+	}
+	return &ruleset
 }

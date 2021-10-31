@@ -1,0 +1,37 @@
+[
+    {
+        "UpdateVersionCode" : "1.2.3",
+        "MD5" : "fasdarsfdacsd",
+        "DownloadURL" : "http://baidu.com",
+        "Title" : "哈哈",
+        "UpdateTips" : "快来升级",
+        "Conditions" : [
+            {
+                "Type" : "equal",
+                "Field" : "device_platform",
+                "Content" : "Android",
+                "Valuetype" : "string"
+            } , {
+                "Type" : "equal",
+                "Field" : "channel",
+                "Content" : "taobao",
+                "Valuetype" : "string"
+            } , {
+                "Type" : "range",
+                "Field" : "version_code",
+                "Valuetype" : "appversion",
+                "Rangev" : ["6.2.4","8.2.5"]
+            } , {
+                "Type" : "range",
+                "Field" : "os_api",
+                "Valuetype" : "int",
+                "Rangev" : [18,20]
+            } , {
+                "Type" : "equal",
+                "Field" : "cpu_arch",
+                "Valuetype" : "string",
+                "Content" : "32"
+            }
+        ]
+    }
+]
