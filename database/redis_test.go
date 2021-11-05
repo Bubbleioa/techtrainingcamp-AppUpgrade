@@ -48,3 +48,19 @@ func TestGetRuleAtt(t *testing.T) {
 		t.Errorf("UnExpected!%v %v", cur_id, val)
 	}
 }
+
+func TestCheckAppidInWhiteList(t *testing.T) {
+	InitClient()
+	one, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "1")
+
+	two, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "2")
+
+	three, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "3")
+	four, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "4")
+	if four == true {
+		t.Error("Four UnExpected!")
+	}
+	if one == false || two == false || three == false {
+		t.Errorf("WhiteList is not correct!%v %v %v", one, two, three)
+	}
+}
