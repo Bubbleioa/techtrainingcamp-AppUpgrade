@@ -2,15 +2,16 @@
 package service
 
 import (
-	"fmt"
 	"database/sql"
-	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/spf13/cast"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"techtrainingcamp-AppUpgrade/model"
+
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/cast"
 )
 
 func Pong(c *gin.Context) {
