@@ -83,40 +83,69 @@ func ToInt(intObj interface{}) int {
 	return 0
 }
 
-// func CheckDeviceIDInWhiteList(ruleid string, appid string) (bool, error)
+func CheckDeviceIDInWhiteList(ruleid string, userid string) (bool, error) {
+	c, err := RedisCheckWhiteList(ruleid, userid)
+	checkErr(err)
+	return c, err
+}
 
-// func GetRuleAtt(ruleid string, field string) (string, error)
+func GetRuleAtt(ruleid string, field string) (string, error) {
+	return RedisGetRuleAttr(ruleid, field)
+}
 
-// func UpdateUserDownloadStatus(ruleid string, status bool) error
+// func UpdateUserDownloadStatus(ruleid string, status bool) error {
+// 	err:=RedisUpdateDownloadStatus(ruleid,status)
+// 	checkErr(err)
+
+// }
 
 //查询所有规则，为了保证完整性，对 mysql 查询
-func QueryAllRules() (*[]map[string]interface{}, error) {
-	return MysqlQueryRules("0")
+func QueryAllRules() (*[]map[string]string, error) {
+	val, _, err := MysqlQueryRules("0")
+	return val, err
 }
 
 //优先对 redis 查询，若没查询到，对 mysql 查询并更新 redis
-// func QueryRuleByID(ruleid string) (*[]map[string]interface{}, *[]string, error) {
-// 	res, err := RedisQueryRuleByID(ruleid)
-// 	if err != nil {
-// 		fmt.Println("Redis not found, query mysql next...\n")
-// 	} else {
-// 		return res, err
-// 	}
-// 	res, err = MysqlQueryRules(ruleid)
-// 	if err != nil {
-// 		fmt.Println("Wrong ID!\n")
-// 	}
-// 	return res, err
-// }
+func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
+	res, devices, err := RedisQueryRuleByID(ruleid)
+	if err != nil {
+		fmt.Println("Redis not found, query mysql next...")
+	} else {
+		return res, devices, err
+	}
+	res, devices, err = MysqlQueryRules(ruleid)
+	if err != nil {
+		fmt.Println("Wrong ID!")
+	}
+	RedisUpdateRuleWithList(ruleid, (*res)[0])
+	return res, devices, err
+}
 
 //提供一个 string-string 的哈希表和白名单，向 mysql 添加规则。
 func AddRule(rulemap *map[string]string, devicelst *[]string) error {
+	//fmt.Println((*rulemap)["id"])
 	err := MysqlAddRule(rulemap, devicelst)
+	checkErr(err)
+	err = RedisUpdateRule((*rulemap)["id"], *rulemap, *devicelst)
+	checkErr(err)
 	return err
 }
 
-// func UpdateRule(rulemap *map[string]string, devicelst *[]string) error
+func UpdateRule(rulemap *map[string]string, devicelst *[]string) error {
+	err := RedisUpdateRule((*rulemap)["id"], *rulemap, *devicelst)
+	checkErr(err)
+	err = MysqlUpdateRule(rulemap, devicelst)
+	checkErr(err)
+	return err
+}
 
-// func DeleteRule(ruleid string) error
+func DeleteRule(ruleid string) error {
+	err := MysqlDeleteRule(ruleid)
+	checkErr(err)
+	err = RedisDeleteRule(ruleid)
+	checkErr(err)
+	return err
+}
 
+// 这个接口直接放在了 mysql.go 中
 // func GetDownloadRatio(ruleid string) (float64, error)

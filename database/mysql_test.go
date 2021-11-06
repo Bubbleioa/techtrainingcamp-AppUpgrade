@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -33,8 +32,8 @@ func TestMysqlAddRule(t *testing.T) {
 }
 
 func TestMysqlQueryRules(t *testing.T) {
-	val, err := MysqlQueryRules("2")
-	fmt.Print(val)
+	_, _, err := MysqlQueryRules("2")
+	// fmt.Print(val)
 	if err != nil {
 		t.Error("NO!")
 	}
