@@ -6,7 +6,7 @@ import (
 )
 
 func TestAdd(t *testing.T) {
-	InitClient()
+	RedisInitClient()
 	r := map[string]string{
 		"aid":                     "200",
 		"platform":                "iOS",
@@ -31,10 +31,10 @@ func TestAdd(t *testing.T) {
 	wl = append(wl, "2")
 	wl = append(wl, "3")
 	tmp_id := cur_id
-	AddRule(r, wl)
+	RedisAddRule(r, wl)
 	//fmt.Println(err)
 
-	val, _ := CheckAppidInWhiteList(strconv.Itoa(tmp_id)+"set", "1")
+	val, _ := RedisCheckWhiteList(strconv.Itoa(tmp_id)+"set", "1")
 	if val == false {
 		t.Errorf("UnExpected!")
 	}
@@ -42,21 +42,21 @@ func TestAdd(t *testing.T) {
 }
 
 func TestGetRuleAtt(t *testing.T) {
-	InitClient()
-	val, _ := GetRuleAttr(strconv.Itoa(cur_id-1), "aid")
+	RedisInitClient()
+	val, _ := RedisGetRuleAttr(strconv.Itoa(cur_id-1), "aid")
 	if val != "200" {
 		t.Errorf("UnExpected!%v %v", cur_id, val)
 	}
 }
 
 func TestCheckAppidInWhiteList(t *testing.T) {
-	InitClient()
-	one, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "1")
+	RedisInitClient()
+	one, _ := RedisCheckWhiteList(strconv.Itoa(cur_id-1)+"set", "1")
 
-	two, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "2")
+	two, _ := RedisCheckWhiteList(strconv.Itoa(cur_id-1)+"set", "2")
 
-	three, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "3")
-	four, _ := CheckAppidInWhiteList(strconv.Itoa(cur_id-1)+"set", "4")
+	three, _ := RedisCheckWhiteList(strconv.Itoa(cur_id-1)+"set", "3")
+	four, _ := RedisCheckWhiteList(strconv.Itoa(cur_id-1)+"set", "4")
 	if four == true {
 		t.Error("Four UnExpected!")
 	}

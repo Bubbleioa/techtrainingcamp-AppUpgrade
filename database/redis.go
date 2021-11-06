@@ -11,7 +11,7 @@ var ctx = context.Background()
 var rdb *redis.Client
 var cur_id int
 
-func InitClient() {
+func RedisInitClient() {
 	//初始化客户端
 	rdb = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
@@ -33,18 +33,18 @@ func InitClient() {
 	}
 }
 
-func GetRuleAttr(ruleid string, attrcode string) (string, error) {
+func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
 	val, err := rdb.HGet(ctx, ruleid, attrcode).Result()
 	return val, err
 
 }
 
-func CheckAppidInWhiteList(ruleid string, userid string) (bool, error) {
+func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 	val, err := rdb.SIsMember(ctx, ruleid, userid).Result()
 	return val, err
 }
 
-func AddRule(r map[string]string, white_list []string) error {
+func RedisAddRule(r map[string]string, white_list []string) error {
 	err := rdb.HMSet(ctx, strconv.Itoa(cur_id), r).Err()
 	if err != nil {
 		return err
