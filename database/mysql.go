@@ -14,7 +14,7 @@ var db *sql.DB
 
 func OpenMysql() error {
 	var err error
-	db, err = sql.Open("mysql", "test:123456@/app")
+	db, err = sql.Open("mysql", "test:123456@/app") //用户名:密码@/数据库名
 	if err != nil {
 		fmt.Println("数据库链接错误", err)
 	}

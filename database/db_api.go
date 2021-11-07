@@ -124,7 +124,6 @@ func UpdateUserDownloadStatus(ruleid string, status bool) error {
 		timecnt = time.Now().Unix()
 		val, wls, _ := RedisQueryRuleByID(ruleid)
 		(*val)[0]["id"] = ruleid
-
 		MysqlUpdateRule(&(*val)[0], wls)
 	}
 	return err
@@ -180,3 +179,6 @@ func DeleteRule(ruleid string) error {
 
 // 这个接口直接放在了 mysql.go 中
 // func GetDownloadRatio(ruleid string) (float64, error)
+
+// 这个接口直接放在了 redis.go 中
+// func GetIDList()(*[]string,error)
