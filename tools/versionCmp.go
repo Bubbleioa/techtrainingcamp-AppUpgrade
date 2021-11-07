@@ -2,10 +2,12 @@ package tools
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 func VersionCmp(a string, b string) int {
@@ -43,17 +45,14 @@ func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *strin
 	if rule == nil && devicelist == nil {
 		return nil
 	}
-	mjson,_ :=json.Marshal(*rule)
-	mString :=string(mjson)
-	var mString2 string
-	mString2 += "["
-	for _, i := range *devicelist {
-		mString2 += i + ","
+	detail := make(map[string]interface{})
+	for k, v := range *rule {
+		detail[k] = v
 	}
-	mString2 = mString2[0 : len(mString2) - 1]
-	mString2 += "]"
-	mString += "," + mString2
-	fmt.Println(mString)
+	detail["device_id_list"] = *devicelist
+	mjson,_ :=json.Marshal(detail)
+	mString :=string(mjson)
+	//fmt.Println(mString)
 	if mString == "" {
 		return nil
 	}
@@ -73,9 +72,113 @@ func ConvertSimplifiedRulesListToJson(rules *[]map[string]string) *string{
 	}
 	ans = ans[0 : len(ans) - 1]
 	ans += "]"
-	fmt.Println(ans)
+	//fmt.Println(ans)
 	if ans == "[]"{
 		return nil
 	}
 	return &ans
+}
+
+func ResolveJsonAppData(data *string)(*map[string]string, error){
+	map1 := make(map[string]interface{})
+	json.Unmarshal([]byte(*data), &map1)
+	map2 := make(map[string]string, len(map1))
+	for k, v := range map1 {
+		map2[k] = fmt.Sprint(v)
+	}
+	if !JudgeAppData(&map2) {
+		return nil, errors.New("Wrong App Data")
+	}
+	//fmt.Println(map2)
+	return &map2, nil
+}
+
+func ResolveJsonRuleData(data *string)(*map[string]string,*[]string, error){
+	map1 := make(map[string]interface{})
+	json.Unmarshal([]byte(*data), &map1)
+	listValue := map1["device_id_list"].([]interface{})
+	keyStringValues := make([]string, len(listValue))
+	for i, arg := range listValue{
+		keyStringValues[i] = arg.(string)
+	}
+	delete(map1, "device_id_list")
+	map2 := make(map[string]string, len(map1))
+	for k, v := range map1 {
+		map2[k] = fmt.Sprint(v)
+	}
+	//fmt.Println(keyStringValues)
+	//fmt.Println(map2)
+	if !JudgeLegalRule(&map2) {
+		return nil, nil, errors.New("Wrong Rule Data")
+	}
+	return &map2, &keyStringValues, nil
+}
+
+func JudgeLegalRule(rule *map[string]string) bool {
+	if (strings.ToLower((*rule)["platform"]) != "" &&
+		strings.ToLower((*rule)["platform"]) != "ios" && strings.ToLower((*rule)["platform"]) != "android") ||
+		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != ""){
+		fmt.Println("1")
+		return false
+	}
+	for i, r := range (*rule)["update_version_code"] {
+		if !unicode.IsDigit(r) && r != '.' {
+			fmt.Println("2")
+			return false
+		}
+		if i > 0 && (*rule)["update_version_code"][i - 1] == '.' && r == '.' {
+			fmt.Println("3")
+			return false
+		}
+	}
+	if VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1{
+		fmt.Println("4")
+		return false
+	}
+	if VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1{
+		fmt.Println("5")
+		return false
+	}
+	return true
+}
+func JudgeAppData(rule *map[string]string) bool{
+	if (strings.ToLower((*rule)["device_platform"]) != "" &&
+		strings.ToLower((*rule)["device_platform"]) != "ios" && strings.ToLower((*rule)["device_platform"]) != "android") ||
+		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != ""){
+		fmt.Println("1")
+		return false
+	}
+	_, ok := (*rule)["os_api"]
+	if (strings.ToLower((*rule)["device_platform"]) == "ios" && ok) ||
+		(strings.ToLower((*rule)["device_platform"]) == "android" && !ok){
+		fmt.Println("2")
+		return false
+	}
+	for i, r := range (*rule)["update_version_code"] {
+		if !unicode.IsDigit(r) && r != '.' {
+			fmt.Println("3")
+			return false
+		}
+		if i > 0 && (*rule)["update_version_code"][i - 1] == '.' && r == '.' {
+			fmt.Println("4")
+			return false
+		}
+	}
+	for i, r := range (*rule)["os_api"] {
+		if !unicode.IsDigit(r) && r != '.' {
+			fmt.Println("5")
+			return false
+		}
+		if i > 0 && (*rule)["os_api"][i - 1] == '.' && r == '.' {
+			fmt.Println("6")
+			return false
+		}
+	}
+	for _, r := range (*rule)["aid"] {
+		if !unicode.IsDigit(r) {
+			fmt.Println("7")
+			return false
+		}
+	}
+	return true
 }
