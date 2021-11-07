@@ -40,6 +40,9 @@ func VersionCmp(a string, b string) int {
 }
 
 func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *string{
+	if rule == nil && devicelist == nil {
+		return nil
+	}
 	mjson,_ :=json.Marshal(*rule)
 	mString :=string(mjson)
 	var mString2 string
@@ -51,10 +54,16 @@ func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *strin
 	mString2 += "]"
 	mString += "," + mString2
 	fmt.Println(mString)
+	if mString == "" {
+		return nil
+	}
 	return &mString
 }
 
 func ConvertSimplifiedRulesListToJson(rules *[]map[string]string) *string{
+	if rules == nil {
+		return nil
+	}
 	var ans string
 	ans += "["
 	for _, i := range *rules{
@@ -65,5 +74,8 @@ func ConvertSimplifiedRulesListToJson(rules *[]map[string]string) *string{
 	ans = ans[0 : len(ans) - 1]
 	ans += "]"
 	fmt.Println(ans)
+	if ans == "[]"{
+		return nil
+	}
 	return &ans
 }
