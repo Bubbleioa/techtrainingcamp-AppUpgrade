@@ -23,17 +23,17 @@ func OpenMysql() error {
 	return err
 }
 
-func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) error {
+func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int, error) {
 	OpenMysql()
 	defer db.Close()
-	id := (*rulemap)["id"]
 	devices := ltos(devicelst)
-	_, err := db.Exec("insert into rules(id,aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", id, (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
+	res, err := db.Exec("insert into rules(aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
 	if err != nil {
 		panic(err)
 	}
-
-	return err
+	val, _ := res.LastInsertId()
+	fmt.Printf("res: %v\n", val)
+	return 0, err
 }
 
 func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {

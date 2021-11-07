@@ -6,10 +6,10 @@ import (
 
 func TestMysqlAddRule(t *testing.T) {
 	rule := map[string]string{
-		"aid":                     "200",
+		"aid":                     "300",
 		"platform":                "iOS",
 		"download_count":          "0",
-		"hit_count":               "0",
+		"hit_count":               "1",
 		"download_url":            "http://baidu.com",
 		"update_version_code":     "1.1.1",
 		"md5":                     "123",
@@ -25,7 +25,7 @@ func TestMysqlAddRule(t *testing.T) {
 		"create_date":             "123",
 	}
 	dl := []string{"1", "2", "3"}
-	err := MysqlAddRule(&rule, &dl)
+	_, err := MysqlAddRule(&rule, &dl)
 	if err != nil {
 		t.Error("No!!")
 	}
