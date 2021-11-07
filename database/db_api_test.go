@@ -7,7 +7,6 @@ import (
 
 func TestAddRule(t *testing.T) {
 	r := map[string]string{
-		"id":                      "1",
 		"aid":                     "123",
 		"platform":                "iOS",
 		"download_count":          "0",
