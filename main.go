@@ -6,5 +6,9 @@ func main() {
 	r := gin.Default()
 
 	customizeouter(r)
-	r.Run()
+	go r.Run()
+
+	r2 := gin.Default()
+	adminRouter(r2)
+	r2.Run(":11451")
 }
