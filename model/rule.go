@@ -1,6 +1,8 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Rules struct {
 	// rule confition
@@ -115,6 +117,9 @@ func GetRulesFromFile() *[]SingleRule {
 		rule.Res["title"] = v.Title
 		rule.Res["update_tips"] = v.UpdateTips
 		rule.Hit, err = RuleFactory(&v)
+		//detail := make(map[string]interface{})
+		//detail["platform"] = "ios"
+		//tools.ResolveJsonRuleData(&detail, true)
 		if err != nil {
 			fmt.Println(err.Error())
 			return nil
