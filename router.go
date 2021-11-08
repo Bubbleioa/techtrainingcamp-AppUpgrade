@@ -21,5 +21,5 @@ func adminRouter(r *gin.Engine) {
 	r.GET("/query_rule", admin.QueryRule)
 	r.POST("/update_rule", admin.UpdateRule)
 	r.POST("/create_rule", admin.CreateRule)
-	r.GET("delete_rule", admin.DeleteRule)
+	r.GET("/delete_rule", admin.DeleteRule)
 }

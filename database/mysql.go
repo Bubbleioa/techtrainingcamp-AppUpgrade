@@ -23,7 +23,7 @@ func OpenMysql() error {
 	return err
 }
 
-func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int, error) {
+func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error) {
 	OpenMysql()
 	defer db.Close()
 	devices := ltos(devicelst)
@@ -32,8 +32,8 @@ func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int, error) 
 		panic(err)
 	}
 	val, _ := res.LastInsertId()
-	fmt.Printf("res: %v\n", val)
-	return 0, err
+	//fmt.Printf("res: %v\n", val)
+	return val, err
 }
 
 func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {
@@ -153,6 +153,6 @@ func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
 		}
 		rowsmap := RowsToMap(dbrows)
 		s := strings.Split((*rowsmap)[0]["device_list"], ",")
-		return RowsToMap(dbrows), &s, err
+		return rowsmap, &s, err
 	}
 }

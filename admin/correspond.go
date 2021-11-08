@@ -9,8 +9,9 @@ import (
 )
 
 func QueryAllRules(c *gin.Context) {
-	// lst, e := database.QueryAllRules()
-	lst, e := query_allrules_testbench()
+
+	lst, e := database.QueryAllRules()
+	// lst, e := query_allrules_testbench()
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"message": e.Error()})
 		return
@@ -21,8 +22,9 @@ func QueryAllRules(c *gin.Context) {
 
 func QueryRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
-	// ml, lst, e := database.QueryRuleByID(ruleid)
-	ml, lst, e := queryrulebyid_testbench(ruleid)
+
+	ml, lst, e := database.QueryRuleByID(ruleid)
+	// ml, lst, e := queryrulebyid_testbench(ruleid)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	}
@@ -45,13 +47,16 @@ func UpdateRule(c *gin.Context) {
 	}
 	var v string
 	var ok bool
-	v, ok = (*mm)["ruleid"]
+
+	v, ok = (*mm)["id"]
 	if !ok {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "No ruleid!"})
 		return
 	}
-	// oldrules, oldlst, e := database.QueryRuleByID(v)
-	oldrules, oldlst, e := queryrulebyid_testbench(v)
+
+	oldrules, oldlst, e := database.QueryRuleByID(v)
+	// oldrules, oldlst, e := queryrulebyid_testbench(v)
+
 	oldrule := (*oldrules)[0]
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "an error occurred"})
@@ -70,11 +75,12 @@ func UpdateRule(c *gin.Context) {
 		return
 	}
 	if lst != nil {
-		// e = database.UpdateRule(&oldrule, lst)
-		e = update_database_testbench(&oldrule, lst)
+
+		e = database.UpdateRule(&oldrule, lst)
+		// e = update_database_testbench(&oldrule, lst)
 	} else {
-		// e = database.UpdateRule(&oldrule, oldlst)
-		e = update_database_testbench(&oldrule, oldlst)
+		e = database.UpdateRule(&oldrule, oldlst)
+		// e = update_database_testbench(&oldrule, oldlst)
 	}
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
