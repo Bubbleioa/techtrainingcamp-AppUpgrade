@@ -31,17 +31,17 @@ func VersionCmp(a string, b string) int {
 	if len(arr1) < len(arr2) {
 		arrLen = len(arr1)
 	}
-		for index := 0; index < arrLen; index++ {
-			if strings.Compare(arr1[index], arr2[index]) < 0 {
-				return -1
-			}else if strings.Compare(arr1[index], arr2[index]) > 0 {
-				return 1
-			}
+	for index := 0; index < arrLen; index++ {
+		if strings.Compare(arr1[index], arr2[index]) < 0 {
+			return -1
+		} else if strings.Compare(arr1[index], arr2[index]) > 0 {
+			return 1
 		}
-		return 0
+	}
+	return 0
 }
 
-func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *string{
+func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *string {
 	if rule == nil && devicelist == nil {
 		return nil
 	}
@@ -50,8 +50,8 @@ func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *strin
 		detail[k] = v
 	}
 	detail["device_id_list"] = *devicelist
-	mjson,_ :=json.Marshal(detail)
-	mString :=string(mjson)
+	mjson, _ := json.Marshal(detail)
+	mString := string(mjson)
 	//fmt.Println(mString)
 	if mString == "" {
 		return nil
@@ -59,27 +59,27 @@ func ConvertFullRuleToJSON(rule *map[string]string, devicelist *[]string) *strin
 	return &mString
 }
 
-func ConvertSimplifiedRulesListToJson(rules *[]map[string]string) *string{
+func ConvertSimplifiedRulesListToJson(rules *[]map[string]string) *string {
 	if rules == nil {
 		return nil
 	}
 	var ans string
 	ans += "["
-	for _, i := range *rules{
-		mjson,_ :=json.Marshal(i)
-		mString :=string(mjson)
+	for _, i := range *rules {
+		mjson, _ := json.Marshal(i)
+		mString := string(mjson)
 		ans += mString + ","
 	}
-	ans = ans[0 : len(ans) - 1]
+	ans = ans[0 : len(ans)-1]
 	ans += "]"
 	//fmt.Println(ans)
-	if ans == "[]"{
+	if ans == "[]" {
 		return nil
 	}
 	return &ans
 }
 
-func ResolveJsonAppData(data *string)(*map[string]string, error){
+func ResolveJsonAppData(data *string) (*map[string]string, error) {
 	map1 := make(map[string]interface{})
 	json.Unmarshal([]byte(*data), &map1)
 	map2 := make(map[string]string, len(map1))
@@ -93,22 +93,25 @@ func ResolveJsonAppData(data *string)(*map[string]string, error){
 	return &map2, nil
 }
 
-func ResolveJsonRuleData(data *string)(*map[string]string,*[]string, error){
-	map1 := make(map[string]interface{})
-	json.Unmarshal([]byte(*data), &map1)
-	listValue := map1["device_id_list"].([]interface{})
-	keyStringValues := make([]string, len(listValue))
-	for i, arg := range listValue{
-		keyStringValues[i] = arg.(string)
+func ResolveJsonRuleData(data *map[string]interface{}, check bool) (*map[string]string, *[]string, error) {
+	// data := make(map[string]interface{})
+	// json.Unmarshal([]byte(*data), &map1)
+	listValue, ok := (*data)["device_id_list"].([]interface{})
+	var keyStringValues []string
+	if ok {
+		keyStringValues = make([]string, len(listValue))
+		for i, arg := range listValue {
+			keyStringValues[i] = arg.(string)
+		}
+		delete(*data, "device_id_list")
 	}
-	delete(map1, "device_id_list")
-	map2 := make(map[string]string, len(map1))
-	for k, v := range map1 {
+	map2 := make(map[string]string, len(*data))
+	for k, v := range *data {
 		map2[k] = fmt.Sprint(v)
 	}
 	//fmt.Println(keyStringValues)
 	//fmt.Println(map2)
-	if !JudgeLegalRule(&map2) {
+	if check && !JudgeLegalRule(&map2) {
 		return nil, nil, errors.New("Wrong Rule Data")
 	}
 	return &map2, &keyStringValues, nil
@@ -117,7 +120,7 @@ func ResolveJsonRuleData(data *string)(*map[string]string,*[]string, error){
 func JudgeLegalRule(rule *map[string]string) bool {
 	if (strings.ToLower((*rule)["platform"]) != "" &&
 		strings.ToLower((*rule)["platform"]) != "ios" && strings.ToLower((*rule)["platform"]) != "android") ||
-		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != ""){
+		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != "") {
 		fmt.Println("1")
 		return false
 	}
@@ -126,31 +129,31 @@ func JudgeLegalRule(rule *map[string]string) bool {
 			fmt.Println("2")
 			return false
 		}
-		if i > 0 && (*rule)["update_version_code"][i - 1] == '.' && r == '.' {
+		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
 			fmt.Println("3")
 			return false
 		}
 	}
-	if VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1{
+	if VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1 {
 		fmt.Println("4")
 		return false
 	}
-	if VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1{
+	if VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1 {
 		fmt.Println("5")
 		return false
 	}
 	return true
 }
-func JudgeAppData(rule *map[string]string) bool{
+func JudgeAppData(rule *map[string]string) bool {
 	if (strings.ToLower((*rule)["device_platform"]) != "" &&
 		strings.ToLower((*rule)["device_platform"]) != "ios" && strings.ToLower((*rule)["device_platform"]) != "android") ||
-		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != ""){
+		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != "") {
 		fmt.Println("1")
 		return false
 	}
 	_, ok := (*rule)["os_api"]
 	if (strings.ToLower((*rule)["device_platform"]) == "ios" && ok) ||
-		(strings.ToLower((*rule)["device_platform"]) == "android" && !ok){
+		(strings.ToLower((*rule)["device_platform"]) == "android" && !ok) {
 		fmt.Println("2")
 		return false
 	}
@@ -159,7 +162,7 @@ func JudgeAppData(rule *map[string]string) bool{
 			fmt.Println("3")
 			return false
 		}
-		if i > 0 && (*rule)["update_version_code"][i - 1] == '.' && r == '.' {
+		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
 			fmt.Println("4")
 			return false
 		}
@@ -169,7 +172,7 @@ func JudgeAppData(rule *map[string]string) bool{
 			fmt.Println("5")
 			return false
 		}
-		if i > 0 && (*rule)["os_api"][i - 1] == '.' && r == '.' {
+		if i > 0 && (*rule)["os_api"][i-1] == '.' && r == '.' {
 			fmt.Println("6")
 			return false
 		}
