@@ -6,6 +6,7 @@ import (
 
 func main() {
 	r := gin.Default()
+	r.LoadHTMLGlob("public/*")
 
 	customizeouter(r)
 	go r.Run()

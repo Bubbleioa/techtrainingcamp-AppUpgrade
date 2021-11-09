@@ -1,13 +1,17 @@
 package main
 
 import (
+
 	"techtrainingcamp-AppUpgrade/admin"
-	"techtrainingcamp-AppUpgrade/service"
 
 	"github.com/gin-gonic/gin"
+	"techtrainingcamp-AppUpgrade/service"
 )
 
 func customizeouter(r *gin.Engine) {
+
+	r.GET("/index",service.test)
+
 	r.GET("/ping", service.Pong)
 	r.GET("/judge1", service.Hit)
 	r.GET("/judge2", service.HitSQL)
