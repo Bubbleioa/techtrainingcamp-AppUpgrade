@@ -14,7 +14,7 @@ var db *sql.DB
 
 func OpenMysql() error {
 	var err error
-	db, err = sql.Open("mysql", "test:123456@/app")
+	db, err = sql.Open("mysql", "test:123456@/app") //用户名:密码@/数据库名
 	if err != nil {
 		fmt.Println("数据库链接错误", err)
 	}
@@ -23,17 +23,17 @@ func OpenMysql() error {
 	return err
 }
 
-func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) error {
+func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error) {
 	OpenMysql()
 	defer db.Close()
-	id := (*rulemap)["id"]
 	devices := ltos(devicelst)
-	_, err := db.Exec("insert into rules(id,aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", id, (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
+	res, err := db.Exec("insert into rules(aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
 	if err != nil {
 		panic(err)
 	}
-
-	return err
+	val, _ := res.LastInsertId()
+	//fmt.Printf("res: %v\n", val)
+	return val, err
 }
 
 func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {
@@ -153,6 +153,6 @@ func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
 		}
 		rowsmap := RowsToMap(dbrows)
 		s := strings.Split((*rowsmap)[0]["device_list"], ",")
-		return RowsToMap(dbrows), &s, err
+		return rowsmap, &s, err
 	}
 }
