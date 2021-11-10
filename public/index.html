@@ -187,20 +187,29 @@
     const showDetailPage = (res) => {
         divShow("querydetail")
         let txt = "暂时下线"
-        for (i in res) {
-            for (j in res[i]) {
-                $("#uniqueul").append(`<li><span>${j}:</span>${res[i][j]}</li>`)
-            }
-            if (res[i]["enabled"] == false) txt = "重新上线"
+        console.log(res)
+        res = JSON.parse(res)
+        console.log(res)
+        for(let key in res) {
+            $("#uniqueul").append(`<li><span>${key}:</span>${res[key]}</li>`)
+            
         }
+        if (res["enabled"] == false) txt = "重新上线"
+        let id = res["ruleid"];
+        // for (i in res) {
+        //     for (j in res[i]) {
+        //         $("#uniqueul").append(`<li><span>${j}:</span>${res[i][j]}</li>`)
+        //     }
+        //     if (res[i]["enabled"] == false) txt = "重新上线"
+        // }
         $("#disablerule").html(txt)
         $("#disablerule").click(e => {
             e.preventDefault()
-            disordle(`/disable_rule?ruleid=${i}`)
+            disordle(`/disable_rule?ruleid=${id}`)
         })
         $("#deleterule").click(e => {
             e.preventDefault()
-            disordle(`/delete_rule?ruleid=${i}`)
+            disordle(`/delete_rule?ruleid=${id}`)
         })
         $("#backtoidx").click(e => {
             e.preventDefault()
@@ -226,6 +235,7 @@
 
 
     const showAll = (res) => {
+        res = JSON.parse(res)
         for (let i in res) {
             let cnt = 0
             s = JSON.stringify(res[i])
@@ -290,3 +300,36 @@
         $(".back").click(() => divShow("choice"))
     });
 </script>
+
+<style>
+    #add {
+        margin-top : 3em;
+        margin-left : 10em;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group {
+        width : 80%;
+        position: relative;
+    }
+
+    .form-group  input{
+        display: block;
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 400px;
+    }
+
+    .form-check {
+        width: 80%;
+        display: flex;
+        justify-content: space-between;
+        padding-right: 10%
+    }
+
+    .form-check label:first-child {
+        flex: calc(100% - 400px) 0 0;
+    }
+</style>
