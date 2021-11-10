@@ -13,6 +13,7 @@
 *.dll
 *.so
 *.dylib
+*.rdb
 techtrainingcamp-AppUpgrade
 go.sum
 
