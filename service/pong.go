@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"techtrainingcamp-AppUpgrade/model"
-
+	"database/sql"
+	"github.com/spf13/cast"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
