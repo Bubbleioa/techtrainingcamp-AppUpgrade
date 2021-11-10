@@ -1,16 +1,14 @@
 package main
 
 import (
-
 	"techtrainingcamp-AppUpgrade/admin"
 
-	"github.com/gin-gonic/gin"
 	"techtrainingcamp-AppUpgrade/service"
+
+	"github.com/gin-gonic/gin"
 )
 
 func customizeouter(r *gin.Engine) {
-
-	r.GET("/index",service.test)
 
 	r.GET("/ping", service.Pong)
 	r.GET("/judge1", service.Hit)
@@ -21,9 +19,12 @@ func customizeouter(r *gin.Engine) {
 }
 
 func adminRouter(r *gin.Engine) {
+	r.LoadHTMLFiles("public/index.html")
+	r.GET("/index", admin.GetHTML)
 	r.GET("/query_all_rules", admin.QueryAllRules)
 	r.GET("/query_rule", admin.QueryRule)
 	r.POST("/update_rule", admin.UpdateRule)
 	r.POST("/create_rule", admin.CreateRule)
 	r.GET("/delete_rule", admin.DeleteRule)
+	r.GET("/disable_rule", admin.DisableRule)
 }

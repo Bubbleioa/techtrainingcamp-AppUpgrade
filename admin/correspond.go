@@ -8,10 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func GetHTML(c *gin.Context) {
+	c.HTML(http.StatusOK, "index.html", nil)
+}
+
 func QueryAllRules(c *gin.Context) {
 
-	lst, e := database.QueryAllRules()
-	// lst, e := query_allrules_testbench()
+	// lst, e := database.QueryAllRules()
+	lst, e := query_allrules_testbench()
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"message": e.Error()})
 		return
@@ -23,8 +27,8 @@ func QueryAllRules(c *gin.Context) {
 func QueryRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
 
-	ml, lst, e := database.QueryRuleByID(ruleid)
-	// ml, lst, e := queryrulebyid_testbench(ruleid)
+	// ml, lst, e := database.QueryRuleByID(ruleid)
+	ml, lst, e := queryrulebyid_testbench(ruleid)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	}
@@ -54,8 +58,8 @@ func UpdateRule(c *gin.Context) {
 		return
 	}
 
-	oldrules, oldlst, e := database.QueryRuleByID(v)
-	// oldrules, oldlst, e := queryrulebyid_testbench(v)
+	// oldrules, oldlst, e := database.QueryRuleByID(v)
+	oldrules, oldlst, e := queryrulebyid_testbench(v)
 
 	oldrule := (*oldrules)[0]
 	if e != nil {
@@ -76,11 +80,11 @@ func UpdateRule(c *gin.Context) {
 	}
 	if lst != nil {
 
-		e = database.UpdateRule(&oldrule, lst)
-		// e = update_database_testbench(&oldrule, lst)
+		// e = database.UpdateRule(&oldrule, lst)
+		e = update_database_testbench(&oldrule, lst)
 	} else {
-		e = database.UpdateRule(&oldrule, oldlst)
-		// e = update_database_testbench(&oldrule, oldlst)
+		// e = database.UpdateRule(&oldrule, oldlst)
+		e = update_database_testbench(&oldrule, oldlst)
 	}
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
@@ -106,6 +110,20 @@ func CreateRule(c *gin.Context) {
 func DeleteRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
 	e := database.DeleteRule(ruleid)
+	if e != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
+	} else {
+		c.Status(http.StatusOK)
+	}
+}
+
+func DisableRule(c *gin.Context) {
+	ruleid := c.Query("ruleid")
+	m := map[string]string{
+		"id":      ruleid,
+		"enabled": "false",
+	}
+	e := database.UpdateRule(&m, nil)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	} else {
