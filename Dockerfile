@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:7.2
 COPY techtrainingcamp-AppUpgrade /root/server
 COPY ./public/index.html /root/public/index.html
 COPY ./redis.conf /root/redis.conf
@@ -9,10 +9,10 @@ RUN yum install -y mysql-server mysql &&\
     mysql --version
 RUN yum install -y epel-release  &&\
     yum update -y &&\
-    yum install -y redis &&\
-    yum install initscripts -y
+    yum install -y redis 
 RUN redis-server --version 
-RUN service mysqld start
+RUN systemctl enable mysqld &&\
+    systemctl start mysqld
 RUN redis-server /root/redis.conf
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
