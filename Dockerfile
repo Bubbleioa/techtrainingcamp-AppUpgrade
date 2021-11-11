@@ -9,7 +9,8 @@ RUN yum install -y mysql-server mysql &&\
     mysql --version
 RUN yum install -y epel-release  &&\
     yum update -y &&\
-    yum install -y redis
+    yum install -y redis &&\
+    yum install initscripts -y
 RUN redis-server --version 
 RUN service mysqld start
 RUN redis-server /root/redis.conf
