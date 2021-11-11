@@ -200,7 +200,7 @@
             
         }
         if (res["enabled"] == false) txt = "重新上线"
-        let id = res["ruleid"];
+        let id = res["id"];
         // for (i in res) {
         //     for (j in res[i]) {
         //         $("#uniqueul").append(`<li><span>${j}:</span>${res[i][j]}</li>`)
@@ -241,6 +241,7 @@
 
     const showAll = (res) => {
         res = JSON.parse(res)
+        console.log(res)
         for (let i in res) {
             let cnt = 0
             s = JSON.stringify(res[i])
@@ -254,7 +255,7 @@
             $(`#${i}`).click(e => {
                 e.preventDefault()
                 $("#queryol").empty();
-                showInDetail(i)
+                showInDetail(res[i]["id"])
             })
         }
     }

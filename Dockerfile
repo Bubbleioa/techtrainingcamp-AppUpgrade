@@ -6,8 +6,8 @@ EXPOSE 11451
 ENV IS_DOCKER 1
 RUN yum install -y mysql-server mysql &&\
     mysql --version
-RUN yum install epel-release &&\
-    yum update &&\
+RUN yum install -y epel-release  &&\
+    yum update -y &&\
     yum install -y redis
 RUN redis-server --version 
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
