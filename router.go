@@ -18,7 +18,7 @@ func customizeouter(r *gin.Engine) {
 }
 
 func adminRouter(r *gin.Engine) {
-	r.LoadHTMLFiles("./public/index.html")
+	r.LoadHTMLFiles("/root/public/index.html")
 	r.GET("/index", admin.GetHTML)
 	r.GET("/query_all_rules", admin.QueryAllRules)
 	r.GET("/query_rule", admin.QueryRule)
