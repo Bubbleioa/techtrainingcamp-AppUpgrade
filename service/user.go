@@ -9,16 +9,15 @@ import (
 	"strings"
 	"techtrainingcamp-AppUpgrade/database"
 	_ "techtrainingcamp-AppUpgrade/model"
+	"techtrainingcamp-AppUpgrade/tools"
 )
 
-/*param
-s1 第一个字符串
-s2 第二个字符串
-flag 若为true，则判断s1版本是否大于等于s2版本，否则判断s1版本是否小于等于s2版本
-
-return
-判断结果
-*/
+// @title    qrnVersionComp
+// @description   用于比较两个字符串类型的版本号
+// @param     s1        string         "第一个版本号"
+// @param     s2        string         "第二个版本号"
+// @param     flag        bool         "true判断s1是否大于等于s2，false则判断s1是否小于等于s2"
+// @return    无        bool         "判断结果"
 func qrnVersionComp(s1 string, s2 string, flag bool) bool {
 	arr1 := strings.Split(s1, ".")
 	arr2 := strings.Split(s2, ".")
@@ -103,6 +102,7 @@ func qrnUpdateUserDownloadStatus(ruleid string, status bool) error {
 	return nil
 }
 
+// Judge 是一个路由函数，根据现有规则对用户发送的更新查询作出响应
 func Judge(c *gin.Context) {
 
 	var respUrl string
@@ -123,6 +123,18 @@ func Judge(c *gin.Context) {
 		log.Panic(err.Error())
 		return
 	}
+
+	respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips = judgeLogic(idList, deviceId, aid, devicePlatform, cpuArch, channel, osApi, updateVersionCode)
+	c.JSON(200, gin.H{"downloadUrl": respUrl, "UpdateVersionCode": respUpdateVersionCode,
+		"Md5": respMd5, "Title": respTitle, "UpdateTips": respUpdateTips})
+}
+
+func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform string, cpuArch string, channel string, osApi string, updateVersionCode string) (string, string, string, string, string) {
+	var respUrl string
+	var respUpdateVersionCode string
+	var respMd5 string
+	var respTitle string
+	var respUpdateTips string
 
 	for index := 0; index < len(*idList); index++ {
 		ruleid := (*idList)[index]
@@ -146,8 +158,8 @@ func Judge(c *gin.Context) {
 			isDeviceIDValue &&
 			cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
 			cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
-			qrnVersionComp(updateVersionCode, ruleMinUpdateVersionCode, true) &&
-			qrnVersionComp(updateVersionCode, ruleMaxUpdateVersionCode, false) {
+			tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
+			tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 {
 			respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
 			respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
 			respMd5, _ = database.GetRuleAtt(ruleid, "md5")
@@ -157,8 +169,7 @@ func Judge(c *gin.Context) {
 		}
 
 	}
-	c.JSON(200, gin.H{"downloadUrl": respUrl, "UpdateVersionCode": respUpdateVersionCode,
-		"Md5": respMd5, "Title": respTitle, "UpdateTips": respUpdateTips})
+	return respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips
 }
 
 func Count(c *gin.Context) {
