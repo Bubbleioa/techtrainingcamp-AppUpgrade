@@ -1,12 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"techtrainingcamp-AppUpgrade/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	lst, _ := database.QueryAllRules()
+	for index, _ := range *lst {
+		fmt.Println((*lst)[index]["id"])
+		database.RedisTouchRule((*lst)[index]["id"])
+	}
 	r := gin.Default()
 
 	customizeouter(r)

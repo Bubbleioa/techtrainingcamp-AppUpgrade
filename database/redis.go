@@ -67,6 +67,14 @@ func RedisDeleteRule(ruleid string) error {
 	return err
 }
 
+func RedisTouchRule(ruleid string) {
+	RedisInitClient()
+	err := rdb.SAdd(ctx, "IDList", ruleid).Err()
+	if err != nil {
+		panic(err)
+	}
+}
+
 //Redis 更新规则，如果没有则创建，有则覆盖
 func RedisUpdateRule(ruleid string, r map[string]string, devices []string) error {
 	RedisInitClient()
