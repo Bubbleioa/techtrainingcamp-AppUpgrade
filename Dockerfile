@@ -3,5 +3,5 @@ COPY techtrainingcamp-AppUpgrade /root/server
 COPY ./public/index.html /root/public/index.html
 EXPOSE 8080
 EXPOSE 11451
-RUN ls /root
+RUN ls /root/public
 CMD /root/server
