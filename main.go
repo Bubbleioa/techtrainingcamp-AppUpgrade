@@ -10,8 +10,8 @@ func main() {
 	customizeouter(r)
 	go r.Run()
 
-	r2 := gin.Default()
+	//r2 := gin.Default()
 	// r2.LoadHTMLGlob("public/*")
 	// adminRouter(r2)
-	r2.Run(":11451")
+	//r2.Run(":11451")
 }
