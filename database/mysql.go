@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -14,13 +15,23 @@ var db *sql.DB
 
 func OpenMysql() error {
 	var err error
-	db, err = sql.Open("mysql", "test:123456@/app") //用户名:密码@/数据库名
+	if os.Getenv("IS_DOCKER") == "1" {
+		db, err = sql.Open("mysql", "group1:group1_1@rdsmysqlh138cf58d0185285d.rds.ivolces.com:3306/group1_mysql") //用户名:密码@/数据库名
+	} else {
+		db, err = sql.Open("mysql", "test:123456@/app") //用户名:密码@/数据库名
+	}
 	if err != nil {
 		fmt.Println("数据库链接错误", err)
 	}
 	//延迟到函数结束关闭链接
 	//defer db.Close()
 	return err
+}
+
+func MysqlCreateTable() {
+	OpenMysql()
+	defer db.Close()
+	db.Exec("use app; CREATE TABLE rules(id int UNSIGNED AUTO_INCREMENT,aid INT UNSIGNED,hit_count INT UNSIGNED DEFAULT 0,download_count INT UNSIGNED DEFAULT 0,  platform CHAR(16),download_url VARCHAR(128),update_version_code	VARCHAR(128),device_list TEXT,md5	VARCHAR(128),max_update_version_code	VARCHAR(128),min_update_version_code	VARCHAR(128),max_os_api	TINYINT UNSIGNED,min_os_api	TINYINT UNSIGNED,cpu_arch	TINYINT UNSIGNED,channel	VARCHAR(128),title	VARCHAR(256),update_tips	VARCHAR(1024),enabled	BOOLEAN DEFAULT true,create_date DATETIME DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY ( id ));")
 }
 
 func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error) {

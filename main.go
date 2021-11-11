@@ -22,6 +22,7 @@ func main() {
 	r2 := gin.Default()
 	if os.Getenv("IS_DOCKER") == "1" {
 		r2.LoadHTMLGlob("/root/public/index.html")
+		database.MysqlCreateTable()
 	} else {
 		r2.LoadHTMLGlob("./public/index.html")
 	}
