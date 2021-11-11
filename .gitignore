@@ -2,7 +2,6 @@
 *.iml
 *.ipr
 *.iws
-*.mod
 .idea/
 .vscode/
 
@@ -13,6 +12,9 @@
 *.dll
 *.so
 *.dylib
+*.rdb
+techtrainingcamp-AppUpgrade
+
 
 # Test binary, built with `go test -c`
 *.test

@@ -20,7 +20,7 @@ const UPDATETIME = 5
 
 func checkErr(err error) {
 	if err != nil {
-		fmt.Printf("checkErr:%v", err)
+		fmt.Printf("checkErr:%v\n", err)
 	}
 }
 
@@ -124,7 +124,6 @@ func UpdateUserDownloadStatus(ruleid string, status bool) error {
 		timecnt = time.Now().Unix()
 		val, wls, _ := RedisQueryRuleByID(ruleid)
 		(*val)[0]["id"] = ruleid
-
 		MysqlUpdateRule(&(*val)[0], wls)
 	}
 	return err
@@ -139,14 +138,16 @@ func QueryAllRules() (*[]map[string]string, error) {
 //优先对 redis 查询，若没查询到，对 mysql 查询并更新 redis
 func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	res, devices, err := RedisQueryRuleByID(ruleid)
-	if err != nil {
-		fmt.Println("Redis not found, query mysql next...")
+	if err != nil || len(*res) == 0 {
+		fmt.Println(res)
 	} else {
 		return res, devices, err
 	}
+	fmt.Println("Redis not found, query mysql next...")
 	res, devices, err = MysqlQueryRules(ruleid)
-	if err != nil {
+	if err != nil || len(*res) == 0 {
 		fmt.Println("Wrong ID!")
+		return res, devices, err
 	}
 	RedisUpdateRuleWithList(ruleid, (*res)[0])
 	return res, devices, err
@@ -154,15 +155,23 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 
 //提供一个 string-string 的哈希表和白名单，向 mysql 添加规则。
 func AddRule(rulemap *map[string]string, devicelst *[]string) error {
-	//fmt.Println((*rulemap)["id"])
-	_, err := MysqlAddRule(rulemap, devicelst)
+	id, err := MysqlAddRule(rulemap, devicelst)
 	checkErr(err)
-	err = RedisUpdateRule((*rulemap)["id"], *rulemap, *devicelst)
+	fmt.Printf("!!")
+	fmt.Println(id)
+	err = RedisUpdateRule(ToStr(id), *rulemap, *devicelst)
 	checkErr(err)
 	return err
 }
 
 func UpdateRule(rulemap *map[string]string, devicelst *[]string) error {
+	// r, _, _ := QueryRuleByID((*rulemap)["id"])
+	// for ky, v := range *rulemap {
+	// 	(*r)[0][ky] = v
+	// }
+	// if tools.JudgeLegalRule(rulemap) == false {
+	// 	return errors.New("Rule is not legal!")
+	// }
 	err := RedisUpdateRule((*rulemap)["id"], *rulemap, *devicelst)
 	checkErr(err)
 	err = MysqlUpdateRule(rulemap, devicelst)
@@ -180,3 +189,6 @@ func DeleteRule(ruleid string) error {
 
 // 这个接口直接放在了 mysql.go 中
 // func GetDownloadRatio(ruleid string) (float64, error)
+
+// 这个接口直接放在了 redis.go 中
+// func GetIDList()(*[]string,error)
