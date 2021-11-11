@@ -99,7 +99,6 @@ func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
 
 }
 
-//http://127.0.0.1:8080/judge?device_platform=ios&device_id=sadsa&os_api=0&channel=华为应用市场%20store&update_version_code=1.0.0&cpu_arch=32&aid=123
 func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 	RedisInitClient()
 	val, err := rdb.SIsMember(ctx, ruleid+"s", userid).Result()

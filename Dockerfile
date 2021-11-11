@@ -10,6 +10,8 @@ RUN yum install -y epel-release  &&\
     yum update -y &&\
     yum install -y redis
 RUN redis-server --version 
+RUN /etc/init.d/mysqld start
+RUN redis-server
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
     mysql -e "grant all privileges on *.* to 'test'@'%' identified by '123456' WITH GRANT OPTION ;"&&\  
