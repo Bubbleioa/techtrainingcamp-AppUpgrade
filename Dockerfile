@@ -7,10 +7,12 @@ EXPOSE 11451
 ENV IS_DOCKER 1
 RUN apt-get update
 RUN apt-get install -y mysql-server &&\
-    mysql --version
+    service mysql status
 RUN apt-get install -y redis 
 RUN redis-server --version 
-RUN service mysql start
+RUN service mysql stop &&\
+    usermod -d /var/lib/mysql/ mysql &&\
+    service mysql start
 RUN redis-server /root/redis.conf
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
