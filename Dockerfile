@@ -3,5 +3,6 @@ COPY techtrainingcamp-AppUpgrade /root/server
 COPY ./public/index.html /root/public/index.html
 EXPOSE 8080
 EXPOSE 11451
+ENV IS_DOCKER 1
 RUN ls /root/public
 CMD /root/server
