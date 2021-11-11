@@ -10,7 +10,7 @@ RUN yum install -y epel-release  &&\
     yum update -y &&\
     yum install -y redis
 RUN redis-server --version 
-RUN /etc/init.d/mysqld start
+RUN service mysqld start
 RUN redis-server
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
