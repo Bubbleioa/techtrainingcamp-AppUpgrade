@@ -1,18 +1,17 @@
-FROM centos:7.2
+FROM ubuntu:latest
 COPY techtrainingcamp-AppUpgrade /root/server
 COPY ./public/index.html /root/public/index.html
 COPY ./redis.conf /root/redis.conf
 EXPOSE 8080
 EXPOSE 11451
 ENV IS_DOCKER 1
-RUN yum install -y mysql-server mysql &&\
+RUN apt-get update
+RUN apt-get install -y mysql-server mysql &&\
     mysql --version
-RUN yum install -y epel-release  &&\
-    yum update -y &&\
-    yum install -y redis 
+RUN apt-get install -y epel-release  &&\
+    apt-get install -y redis 
 RUN redis-server --version 
-RUN systemctl enable mysqld &&\
-    systemctl start mysqld
+RUN service mysql start
 RUN redis-server /root/redis.conf
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
