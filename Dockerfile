@@ -4,7 +4,9 @@ COPY ./public/index.html /root/public/index.html
 EXPOSE 8080
 EXPOSE 11451
 ENV IS_DOCKER 1
+RUN yum install -y mysql-server mysql  
 RUN mysql --version
+RUN yum install -y redis-server
 RUN redis-server --version 
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
