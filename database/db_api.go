@@ -104,9 +104,9 @@ func CheckDeviceIDInWhiteList(ruleid string, userid string) (bool, error) {
 
 func GetRuleAtt(ruleid string, field string) (string, error) {
 	val, err := RedisGetRuleAttr(ruleid, field)
-	if err != nil {
+	if err != nil || val == "" {
 		qres, wls, err2 := MysqlQueryRules(ruleid)
-		if err2 != nil {
+		if err2 != nil || len(*qres) == 0 {
 			return "Not Match!", err2
 		}
 		RedisUpdateRule(ruleid, (*qres)[0], *wls)
