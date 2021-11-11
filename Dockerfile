@@ -8,8 +8,7 @@ ENV IS_DOCKER 1
 RUN apt-get update
 RUN apt-get install -y mysql-server &&\
     mysql --version
-RUN apt-get install -y epel-release  &&\
-    apt-get install -y redis 
+RUN apt-get install -y redis 
 RUN redis-server --version 
 RUN service mysql start
 RUN redis-server /root/redis.conf
