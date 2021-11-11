@@ -8,7 +8,7 @@ ENV IS_DOCKER 1
 RUN apt-get update
 RUN apt-get install -y mysql-server
 RUN apt-get install -y redis 
-RUN service mysql start
+RUN systemctl start mysql
 RUN mysql -e "CREATE DATABASE app;"
 RUN mysql -e "CREATE USER 'test'@'127.0.0.1' IDENTIFIED BY '123456';"
 RUN mysql -e "grant all privileges on *.* to 'test'@'127.0.0.1' identified by '123456' WITH GRANT OPTION ;"
