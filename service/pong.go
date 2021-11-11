@@ -2,6 +2,7 @@
 package service
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"strconv"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/cast"
 )
 
 func Pong(c *gin.Context) {

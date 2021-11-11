@@ -2,7 +2,6 @@
 *.iml
 *.ipr
 *.iws
-*.mod
 .idea/
 .vscode/
 
@@ -15,7 +14,7 @@
 *.dylib
 *.rdb
 techtrainingcamp-AppUpgrade
-go.sum
+
 
 # Test binary, built with `go test -c`
 *.test
