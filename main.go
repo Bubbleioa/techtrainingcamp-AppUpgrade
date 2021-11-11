@@ -8,7 +8,7 @@ func main() {
 	r := gin.Default()
 
 	customizeouter(r)
-	go r.Run()
+	r.Run()
 
 	//r2 := gin.Default()
 	// r2.LoadHTMLGlob("public/*")
