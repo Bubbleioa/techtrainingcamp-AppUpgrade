@@ -127,15 +127,20 @@
 <script>
     $("#updatebutton").click(e => {
         e.preventDefault()
-        var data = new FormData($("#form1")[0]);
+        // var data = new FormData($("#form1")[0]);
+        let data = {}
+        $(".form-group input").each((id, e) => {
+            if (e.value != "") {
+                data[$(e).attr("name")] = e.value
+            }
+            
+            // console.log($(e).attr("name") + " " + e.value)
+        })
         console.log(data)
         $.ajax({
-            type: 'post',
+            type: 'POST',
             url: "/update_rule",
-            cache: false,
-            processData: false,
-            contentType: false,
-            data: data,
+            data: JSON.stringify(data),
             dataType: 'json',
             success: res => {
                 $("#updatebutton").hide()
@@ -219,7 +224,7 @@
         })
         $("#updaterule").click(e => {
             e.preventDefault()
-            updateRule(res[i])
+            updateRule(res["ruleid"])
         })
     }
 
@@ -282,15 +287,22 @@
 
 
         $("#submitadd").click(function () {
-            var data = new FormData($("#form1")[0]);
-            console.log(data)
+            // var data = new FormData($("#form1")[0]);
+            let data = {}
+            $(".form-group input").each((id, e) => {
+                data[$(e).attr("name")] = e.value
+                // console.log($(e).attr("name") + " " + e.value)
+            })
+            // $("input").forEach(e => {
+            //     console.log(e)
+            // })
+            // console.log(document.forms[0])
+            // $.post("/create_rule", data, (e)=>{})
             $.ajax({
-                type: 'post',
+                type: 'POST',
                 url: "/create_rule",
-                cache: false,
-                processData: false,
-                contentType: false,
-                data: data,
+                contentType: "application/json",
+                data: JSON.stringify(data),
                 dataType: 'json',
                 success: (res) => msgHint("创建成功"),
                 error: () => alert("请求失败,请您重新尝试")
