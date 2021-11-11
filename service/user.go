@@ -110,6 +110,7 @@ func Judge(c *gin.Context) {
 	var respMd5 string
 	var respTitle string
 	var respUpdateTips string
+	var respRuleId string
 
 	devicePlatform := c.Query("device_platform")
 	deviceId := c.Query("device_id")
@@ -124,18 +125,18 @@ func Judge(c *gin.Context) {
 		return
 	}
 
-	respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips = judgeLogic(idList, deviceId, aid, devicePlatform, cpuArch, channel, osApi, updateVersionCode)
-	c.JSON(200, gin.H{"downloadUrl": respUrl, "UpdateVersionCode": respUpdateVersionCode,
+	respRuleId, respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips = judgeLogic(idList, deviceId, aid, devicePlatform, cpuArch, channel, osApi, updateVersionCode)
+	c.JSON(200, gin.H{"ruleid": respRuleId, "downloadUrl": respUrl, "UpdateVersionCode": respUpdateVersionCode,
 		"Md5": respMd5, "Title": respTitle, "UpdateTips": respUpdateTips})
 }
 
-func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform string, cpuArch string, channel string, osApi string, updateVersionCode string) (string, string, string, string, string) {
+func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform string, cpuArch string, channel string, osApi string, updateVersionCode string) (string, string, string, string, string, string) {
 	var respUrl string
 	var respUpdateVersionCode string
 	var respMd5 string
 	var respTitle string
 	var respUpdateTips string
-
+	var respRuleId string
 	for index := 0; index < len(*idList); index++ {
 		ruleid := (*idList)[index]
 		isEnabled, _ := database.GetRuleAtt(ruleid, "enabled")
@@ -165,11 +166,12 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 			respMd5, _ = database.GetRuleAtt(ruleid, "md5")
 			respTitle, _ = database.GetRuleAtt(ruleid, "title")
 			respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+			respRuleId, _ = database.GetRuleAtt(ruleid, "id")
 			break
 		}
 
 	}
-	return respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips
+	return respRuleId, respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips
 }
 
 func Count(c *gin.Context) {
