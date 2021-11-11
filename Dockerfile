@@ -1,6 +1,7 @@
 FROM centos:7
 COPY techtrainingcamp-AppUpgrade /root/server
 COPY ./public/index.html /root/public/index.html
+COPY ./redis.conf /root/redis.conf
 EXPOSE 8080
 EXPOSE 11451
 ENV IS_DOCKER 1
@@ -11,7 +12,7 @@ RUN yum install -y epel-release  &&\
     yum install -y redis
 RUN redis-server --version 
 RUN service mysqld start
-RUN redis-server
+RUN redis-server /root/redis.conf
 RUN  mysql -e "CREATE DATABASE app;"&&\ 
     mysql -e "CREATE USER 'test'@'localhost' IDENTIFIED BY '123456';"&&\
     mysql -e "grant all privileges on *.* to 'test'@'%' identified by '123456' WITH GRANT OPTION ;"&&\  
