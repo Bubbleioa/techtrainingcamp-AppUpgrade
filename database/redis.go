@@ -80,27 +80,29 @@ func RedisTouchRule(ruleid string) {
 }
 
 //Redis 更新规则，如果没有则创建，有则覆盖
-func RedisUpdateRule(ruleid string, r map[string]string, devices []string) error {
+func RedisUpdateRule(ruleid string, r *map[string]string, devices *[]string) error {
 	//RedisInitClient()
 	//defer rdb.Close()
 	pipe := rdb.TxPipeline()
 	err := pipe.SAdd(ctx, "IDList", ruleid).Err()
 	checkErr(err)
-	err = pipe.HMSet(ctx, ruleid, r).Err()
+	err = pipe.HMSet(ctx, ruleid, *r).Err()
 	checkErr(err)
 	pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	//s := strings.Split(r["device_list"], ",")
-	pipe.Del(ctx, ruleid+"s")
-	err = pipe.SAdd(ctx, ruleid+"s", devices).Err()
-	checkErr(err)
-	pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	if devices != nil {
+		pipe.Del(ctx, ruleid+"s")
+		err = pipe.SAdd(ctx, ruleid+"s", *devices).Err()
+		checkErr(err)
+		pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	}
 	_, err = pipe.Exec(ctx)
 	return err
 }
 
-func RedisUpdateRuleWithList(ruleid string, r map[string]string) error {
-	s := strings.Split(r["device_list"], ",")
-	return RedisUpdateRule(ruleid, r, s)
+func RedisUpdateRuleWithList(ruleid string, r *map[string]string) error {
+	s := strings.Split((*r)["device_list"], ",")
+	return RedisUpdateRule(ruleid, r, &s)
 }
 
 func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {

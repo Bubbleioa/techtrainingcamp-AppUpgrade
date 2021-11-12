@@ -54,13 +54,19 @@ func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error
 func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {
 	//OpenMysql()
 	//defer db.Close()
-	devices := ltos(devicelst)
+	var devices string
+	if devicelst != nil {
+		devices = ltos(devicelst)
+	}
 	id := (*rulemap)["id"]
 	delete(*rulemap, "id")
 	if id == "" {
 		return errors.New("id can't be none")
 	}
-	_, err := db.Exec("update rules set device_list=? where id=?", devices, id)
+	var err error
+	if devicelst != nil {
+		_, err = db.Exec("update rules set device_list=? where id=?", devices, id)
+	}
 	checkErr(err)
 	for key, val := range *rulemap {
 		s := fmt.Sprintf("update rules set %s=? where id=?", key)
