@@ -155,6 +155,7 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 
 //提供一个 string-string 的哈希表和白名单，向 mysql 添加规则。
 func AddRule(rulemap *map[string]string, devicelst *[]string) error {
+	fmt.Println(rulemap, devicelst)
 	id, err := MysqlAddRule(rulemap, devicelst)
 	checkErr(err)
 	fmt.Printf("!!")

@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 	"techtrainingcamp-AppUpgrade/database"
 	"techtrainingcamp-AppUpgrade/tools"
@@ -78,11 +79,13 @@ func UpdateRule(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Invalid value"})
 		return
 	}
+
 	if lst != nil {
 
 		e = database.UpdateRule(&oldrule, lst)
 		// e = update_database_testbench(&oldrule, lst)
 	} else {
+
 		e = database.UpdateRule(&oldrule, oldlst)
 		// e = update_database_testbench(&oldrule, oldlst)
 	}
@@ -95,6 +98,7 @@ func UpdateRule(c *gin.Context) {
 
 func CreateRule(c *gin.Context) {
 	mp := make(map[string]interface{})
+	fmt.Println(c)
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
 	if e != nil {
