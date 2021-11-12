@@ -146,15 +146,17 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 		if !cast.ToBool(isEnabled) {
 			continue
 		}
-		ruleAid, _ := res["aid"]
-		rulePlatform, _ := res["platform"]
-		ruleCpuArch, _ := res["cpu_arch"]
-		ruleChannel, _ := res["channel"]
-		isDeviceIDValue, _ := database.CheckDeviceIDInWhiteList(ruleid, deviceId)
-		ruleMinOsApi, _ := res["min_os_api"]
-		ruleMaxOsApi, _ := res["max_os_api"]
-		ruleMinUpdateVersionCode, _ := res["min_update_version_code"]
-		ruleMaxUpdateVersionCode, _ := res["max_update_version_code"]
+		qObj := database.RuleObj{false, nil, nil}
+		ruleAid, _ := qObj.GetRuleAtt(ruleid, "aid")
+		rulePlatform, _ := qObj.GetRuleAtt(ruleid, "platform")
+		ruleCpuArch, _ := qObj.GetRuleAtt(ruleid, "cpu_arch")
+		ruleChannel, _ := qObj.GetRuleAtt(ruleid, "channel")
+		isDeviceIDValue, _ := qObj.CheckDeviceIDInWhiteList(ruleid, deviceId)
+		ruleMinOsApi, _ := qObj.GetRuleAtt(ruleid, "min_os_api")
+		ruleMaxOsApi, _ := qObj.GetRuleAtt(ruleid, "max_os_api")
+		ruleMinUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "min_update_version_code")
+		ruleMaxUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "max_update_version_code")
+
 		if strings.Compare(aid, ruleAid) == 0 &&
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
 			strings.Compare(cpuArch, ruleCpuArch) == 0 &&
