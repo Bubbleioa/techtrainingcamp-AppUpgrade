@@ -21,58 +21,63 @@ func RedisInitClient() {
 		Addr:     "localhost:6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
+		PoolSize: 40,
 	})
 	// ctx = context.Background()
 }
 
+func RedisClose() {
+	rdb.Close()
+}
+
 func RedisUpdateDownloadStatus(ruleid string, status bool) error {
-	RedisInitClient()
-	defer rdb.Close()
-	err := rdb.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
-	checkErr(err)
-	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
+	//RedisInitClient()
+	//defer rdb.Close()
+	pipe := rdb.TxPipeline()
+	pipe.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
+	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	if status {
-		err = rdb.HIncrBy(ctx, ruleid, "download_count", 1).Err()
-		checkErr(err)
+		pipe.HIncrBy(ctx, ruleid, "download_count", 1).Err()
 	}
+	_, err := pipe.Exec(ctx)
 	return err
 }
 
 func RedisQueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
-	RedisInitClient()
-	defer rdb.Close()
-	val, err := rdb.HGetAll(ctx, ruleid).Result()
-	//fmt.Println(ruleid)
-	checkErr(err)
+	//RedisInitClient()
+	//defer rdb.Close()
+	pipe := rdb.TxPipeline()
+	pipe.HGetAll(ctx, ruleid)
+	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
+	//pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	res, err := pipe.Exec(ctx)
+	val, _ := res[0].(*redis.StringStringMapCmd).Result()
 	devices := make([]map[string]string, 0)
 	s := strings.Split(val["device_list"], ",")
 	if len(val) == 0 {
 		err = errors.New("Can't find in redis...")
 		return &devices, &s, err
 	}
-	err = rdb.Expire(ctx, ruleid, EPTIME*time.Second).Err()
-	checkErr(err)
-	err = rdb.Expire(ctx, ruleid+"s", EPTIME*time.Second).Err()
 	checkErr(err)
 	devices = append(devices, val)
 	return &devices, &s, err
 }
 
 func RedisDeleteRule(ruleid string) error {
-	RedisInitClient()
-	defer rdb.Close()
-	err := rdb.SRem(ctx, "IDList", ruleid).Err()
-	checkErr(err)
-	err = rdb.Del(ctx, ruleid).Err()
-	checkErr(err)
-	err = rdb.Del(ctx, ruleid+"s").Err()
+	//RedisInitClient()
+	//defer rdb.Close()
+	pipe := rdb.TxPipeline()
+	pipe.SRem(ctx, "IDList", ruleid).Err()
+	pipe.Del(ctx, ruleid).Err()
+	pipe.Del(ctx, ruleid+"s").Err()
+	_, err := pipe.Exec(ctx)
 	checkErr(err)
 	return err
 }
 
 func RedisTouchRule(ruleid string) {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
 	err := rdb.SAdd(ctx, "IDList", ruleid).Err()
 	if err != nil {
 		panic(err)
@@ -81,21 +86,22 @@ func RedisTouchRule(ruleid string) {
 
 //Redis 更新规则，如果没有则创建，有则覆盖
 func RedisUpdateRule(ruleid string, r map[string]string, devices []string) error {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
 	fmt.Println(devices)
 	fmt.Println(r)
-
-	err := rdb.SAdd(ctx, "IDList", ruleid).Err()
+	pipe := rdb.TxPipeline()
+	err := pipe.SAdd(ctx, "IDList", ruleid).Err()
 	checkErr(err)
-	err = rdb.HMSet(ctx, ruleid, r).Err()
+	err = pipe.HMSet(ctx, ruleid, r).Err()
 	checkErr(err)
-	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
+	pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	//s := strings.Split(r["device_list"], ",")
-	rdb.Del(ctx, ruleid+"s")
-	err = rdb.SAdd(ctx, ruleid+"s", devices).Err()
+	pipe.Del(ctx, ruleid+"s")
+	err = pipe.SAdd(ctx, ruleid+"s", devices).Err()
 	checkErr(err)
-	rdb.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	_, err = pipe.Exec(ctx)
 	return err
 }
 
@@ -105,39 +111,46 @@ func RedisUpdateRuleWithList(ruleid string, r map[string]string) error {
 }
 
 func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
+	//pipe := rdb.TxPipeline()
 	val, err := rdb.HGet(ctx, ruleid, attrcode).Result()
-	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
+	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
+	// res, _ := pipe.Exec(ctx)
+	// val, err := res[0].(*redis.StringCmd).Result()
 	return val, err
 
 }
 
 func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
-	RedisInitClient()
-	defer rdb.Close()
-	val, err := rdb.SIsMember(ctx, ruleid+"s", userid).Result()
-	rdb.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	//RedisInitClient()
+	//defer rdb.Close()
+	pipe := rdb.TxPipeline()
+	pipe.SIsMember(ctx, ruleid+"s", userid).Result()
+	//pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
+	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
+	res, _ := pipe.Exec(ctx)
+	val, err := res[0].(*redis.BoolCmd).Result()
 	return val, err
 }
 
 func GetIDList() (*[]string, error) {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
 	val, err := rdb.SMembers(ctx, "IDList").Result()
 	checkErr(err)
 	return &val, err
 }
 
 func RedisDeleteAll() {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
 	rdb.FlushAll(ctx)
 }
 
 func RedisGetAllKeys() []string {
-	RedisInitClient()
-	defer rdb.Close()
+	//RedisInitClient()
+	//defer rdb.Close()
 	str, _ := rdb.Keys(ctx, "*").Result()
 	return str
 }

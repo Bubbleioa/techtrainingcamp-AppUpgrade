@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime/pprof"
 	"techtrainingcamp-AppUpgrade/database"
 	"time"
 
@@ -11,12 +12,19 @@ import (
 )
 
 func main() {
-
+	database.RedisInitClient()
+	database.OpenMysql()
+	defer database.RedisClose()
+	defer database.CloseMysql()
 	lst, _ := database.QueryAllRules()
 	for index, _ := range *lst {
 		fmt.Println((*lst)[index]["id"])
 		database.RedisTouchRule((*lst)[index]["id"])
 	}
+	f, _ := os.OpenFile("cpu.pprof", os.O_CREATE|os.O_RDWR, 0644)
+	defer f.Close()
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
 	r := gin.Default()
 	srv := &http.Server{
 		Addr:         ":8080",
@@ -42,6 +50,8 @@ func main() {
 		WriteTimeout: 3 * time.Second,
 	}
 	adminRouter(r2)
-	srv2.ListenAndServe()
+	go srv2.ListenAndServe()
+	time.Sleep(20 * time.Second)
+	panic("NO!!!!!")
 	//r2.Run(":11451")
 }
