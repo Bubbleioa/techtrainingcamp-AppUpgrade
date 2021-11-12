@@ -13,7 +13,7 @@ import (
 var ctx = context.Background()
 var rdb *redis.Client
 
-const EPTIME = 6
+const EPTIME = 30
 
 func RedisInitClient() {
 	//初始化客户端
@@ -27,6 +27,7 @@ func RedisInitClient() {
 
 func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 	RedisInitClient()
+	defer rdb.Close()
 	err := rdb.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
 	checkErr(err)
 	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
@@ -39,6 +40,7 @@ func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 
 func RedisQueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	RedisInitClient()
+	defer rdb.Close()
 	val, err := rdb.HGetAll(ctx, ruleid).Result()
 	//fmt.Println(ruleid)
 	checkErr(err)
@@ -58,6 +60,7 @@ func RedisQueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) 
 
 func RedisDeleteRule(ruleid string) error {
 	RedisInitClient()
+	defer rdb.Close()
 	err := rdb.SRem(ctx, "IDList", ruleid).Err()
 	checkErr(err)
 	err = rdb.Del(ctx, ruleid).Err()
@@ -69,6 +72,7 @@ func RedisDeleteRule(ruleid string) error {
 
 func RedisTouchRule(ruleid string) {
 	RedisInitClient()
+	defer rdb.Close()
 	err := rdb.SAdd(ctx, "IDList", ruleid).Err()
 	if err != nil {
 		panic(err)
@@ -78,6 +82,7 @@ func RedisTouchRule(ruleid string) {
 //Redis 更新规则，如果没有则创建，有则覆盖
 func RedisUpdateRule(ruleid string, r map[string]string, devices []string) error {
 	RedisInitClient()
+	defer rdb.Close()
 	fmt.Println(devices)
 	fmt.Println(r)
 
@@ -101,6 +106,7 @@ func RedisUpdateRuleWithList(ruleid string, r map[string]string) error {
 
 func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
 	RedisInitClient()
+	defer rdb.Close()
 	val, err := rdb.HGet(ctx, ruleid, attrcode).Result()
 	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
 	return val, err
@@ -109,6 +115,7 @@ func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
 
 func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 	RedisInitClient()
+	defer rdb.Close()
 	val, err := rdb.SIsMember(ctx, ruleid+"s", userid).Result()
 	rdb.Expire(ctx, ruleid+"s", EPTIME*time.Second)
 	return val, err
@@ -116,6 +123,7 @@ func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 
 func GetIDList() (*[]string, error) {
 	RedisInitClient()
+	defer rdb.Close()
 	val, err := rdb.SMembers(ctx, "IDList").Result()
 	checkErr(err)
 	return &val, err
@@ -123,11 +131,13 @@ func GetIDList() (*[]string, error) {
 
 func RedisDeleteAll() {
 	RedisInitClient()
+	defer rdb.Close()
 	rdb.FlushAll(ctx)
 }
 
 func RedisGetAllKeys() []string {
 	RedisInitClient()
+	defer rdb.Close()
 	str, _ := rdb.Keys(ctx, "*").Result()
 	return str
 }
