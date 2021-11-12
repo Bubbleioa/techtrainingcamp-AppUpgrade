@@ -46,12 +46,10 @@ func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 func RedisQueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	//RedisInitClient()
 	//defer rdb.Close()
-	pipe := rdb.TxPipeline()
-	pipe.HGetAll(ctx, ruleid)
+	val, err := rdb.HGetAll(ctx, ruleid).Result()
 	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	//pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
-	res, err := pipe.Exec(ctx)
-	val, _ := res[0].(*redis.StringStringMapCmd).Result()
+	// val, _ := res[0].(*redis.StringStringMapCmd).Result()
 	devices := make([]map[string]string, 0)
 	s := strings.Split(val["device_list"], ",")
 	if len(val) == 0 {
