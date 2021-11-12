@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"runtime/pprof"
 	"techtrainingcamp-AppUpgrade/database"
@@ -26,15 +25,8 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 	r := gin.Default()
-	srv := &http.Server{
-		Addr:         ":8080",
-		Handler:      r,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-	}
-
 	customizeouter(r)
-	go srv.ListenAndServe()
+	go r.Run(":8080")
 
 	r2 := gin.Default()
 	if os.Getenv("IS_DOCKER") == "1" {
@@ -43,15 +35,9 @@ func main() {
 	} else {
 		r2.LoadHTMLGlob("./public/index.html")
 	}
-	srv2 := &http.Server{
-		Addr:         ":11451",
-		Handler:      r2,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-	}
 	adminRouter(r2)
-	go srv2.ListenAndServe()
+	go r2.Run(":11451")
 	time.Sleep(20 * time.Second)
 	panic("NO!!!!!")
-	//r2.Run(":11451")
+	// r2.Run(":11451")
 }

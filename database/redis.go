@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -33,13 +32,11 @@ func RedisClose() {
 func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 	//RedisInitClient()
 	//defer rdb.Close()
-	pipe := rdb.TxPipeline()
-	pipe.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
+	err := rdb.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
 	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	if status {
-		pipe.HIncrBy(ctx, ruleid, "download_count", 1).Err()
+		err = rdb.HIncrBy(ctx, ruleid, "download_count", 1).Err()
 	}
-	_, err := pipe.Exec(ctx)
 	return err
 }
 
@@ -86,8 +83,6 @@ func RedisTouchRule(ruleid string) {
 func RedisUpdateRule(ruleid string, r map[string]string, devices []string) error {
 	//RedisInitClient()
 	//defer rdb.Close()
-	fmt.Println(devices)
-	fmt.Println(r)
 	pipe := rdb.TxPipeline()
 	err := pipe.SAdd(ctx, "IDList", ruleid).Err()
 	checkErr(err)
@@ -123,12 +118,10 @@ func RedisGetRuleAttr(ruleid string, attrcode string) (string, error) {
 func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 	//RedisInitClient()
 	//defer rdb.Close()
-	pipe := rdb.TxPipeline()
-	pipe.SIsMember(ctx, ruleid+"s", userid).Result()
+	//pipe := rdb.TxPipeline()
+	val, err := rdb.SIsMember(ctx, ruleid+"s", userid).Result()
 	//pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
 	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
-	res, _ := pipe.Exec(ctx)
-	val, err := res[0].(*redis.BoolCmd).Result()
 	return val, err
 }
 
