@@ -94,7 +94,7 @@ func CheckDeviceIDInWhiteList(ruleid string, userid string) (bool, error) {
 		if err2 != nil {
 			return false, err2
 		}
-		RedisUpdateRule(ruleid, (*qres)[0], *wls)
+		RedisUpdateRule(ruleid, &(*qres)[0], wls)
 		res, err = RedisCheckWhiteList(ruleid, userid)
 	} else {
 		return res, err
@@ -109,7 +109,7 @@ func GetRuleAtt(ruleid string, field string) (string, error) {
 		if err2 != nil || len(*qres) == 0 {
 			return "Not Match!", err2
 		}
-		RedisUpdateRule(ruleid, (*qres)[0], *wls)
+		RedisUpdateRule(ruleid, &(*qres)[0], wls)
 		val, err = RedisGetRuleAttr(ruleid, field)
 	} else {
 		return val, err
@@ -149,17 +149,18 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 		fmt.Println("Wrong ID!")
 		return res, devices, err
 	}
-	RedisUpdateRuleWithList(ruleid, (*res)[0])
+	RedisUpdateRuleWithList(ruleid, &(*res)[0])
 	return res, devices, err
 }
 
 //提供一个 string-string 的哈希表和白名单，向 mysql 添加规则。
 func AddRule(rulemap *map[string]string, devicelst *[]string) error {
+	fmt.Println(rulemap, devicelst)
 	id, err := MysqlAddRule(rulemap, devicelst)
 	checkErr(err)
 	fmt.Printf("!!")
 	fmt.Println(id)
-	err = RedisUpdateRule(ToStr(id), *rulemap, *devicelst)
+	err = RedisUpdateRule(ToStr(id), rulemap, devicelst)
 	checkErr(err)
 	return err
 }
@@ -172,7 +173,8 @@ func UpdateRule(rulemap *map[string]string, devicelst *[]string) error {
 	// if tools.JudgeLegalRule(rulemap) == false {
 	// 	return errors.New("Rule is not legal!")
 	// }
-	err := RedisUpdateRule((*rulemap)["id"], *rulemap, *devicelst)
+	fmt.Println(rulemap, devicelst)
+	err := RedisUpdateRule((*rulemap)["id"], rulemap, devicelst)
 	checkErr(err)
 	err = MysqlUpdateRule(rulemap, devicelst)
 	checkErr(err)

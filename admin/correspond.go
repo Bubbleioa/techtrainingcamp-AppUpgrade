@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 	"techtrainingcamp-AppUpgrade/database"
 	"techtrainingcamp-AppUpgrade/tools"
@@ -78,11 +79,13 @@ func UpdateRule(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Invalid value"})
 		return
 	}
+
 	if lst != nil {
 
 		e = database.UpdateRule(&oldrule, lst)
 		// e = update_database_testbench(&oldrule, lst)
 	} else {
+
 		e = database.UpdateRule(&oldrule, oldlst)
 		// e = update_database_testbench(&oldrule, oldlst)
 	}
@@ -90,21 +93,23 @@ func UpdateRule(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func CreateRule(c *gin.Context) {
 	mp := make(map[string]interface{})
+	fmt.Println(c)
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
-	if e != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
-	}
-	e = database.AddRule(mm, lst)
-	if e != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
-	}
-	c.Status(http.StatusOK)
+	fmt.Println(mm, lst, e)
+	// if e != nil {
+	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
+	// }
+	// e = database.AddRule(mm, lst)
+	// if e != nil {
+	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
+	// }
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func DeleteRule(c *gin.Context) {
@@ -127,6 +132,6 @@ func DisableRule(c *gin.Context) {
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	} else {
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, gin.H{})
 	}
 }

@@ -13,6 +13,10 @@ import (
 
 var db *sql.DB
 
+func CloseMysql() {
+	db.Close()
+}
+
 func OpenMysql() error {
 	var err error
 	if os.Getenv("IS_DOCKER") == "1" {
@@ -29,20 +33,24 @@ func OpenMysql() error {
 }
 
 func MysqlCreateTable() {
-	fmt.Println("qwq")
-	OpenMysql()
-	defer db.Close()
-	_, err := db.Exec("CREATE TABLE rules(id int UNSIGNED AUTO_INCREMENT,aid INT UNSIGNED,hit_count INT UNSIGNED DEFAULT 0,download_count INT UNSIGNED DEFAULT 0,  platform CHAR(16),download_url VARCHAR(128),update_version_code VARCHAR(128),device_list TEXT,md5 VARCHAR(128),max_update_version_code VARCHAR(128),min_update_version_code VARCHAR(128),max_os_api TINYINT UNSIGNED,min_os_api TINYINT UNSIGNED,cpu_arch TINYINT UNSIGNED,channel VARCHAR(128),title VARCHAR(256),update_tips VARCHAR(1024),enabled BOOLEAN DEFAULT true,create_date DATETIME DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY ( id ));")
-	if err != nil {
-		panic(err)
-	}
+	//OpenMysql()
+	//defer db.Close()
+	db.Exec("use app; CREATE TABLE rules(id int UNSIGNED AUTO_INCREMENT,aid INT UNSIGNED,hit_count INT UNSIGNED DEFAULT 0,download_count INT UNSIGNED DEFAULT 0,  platform CHAR(16),download_url VARCHAR(128),update_version_code	VARCHAR(128),device_list TEXT,md5	VARCHAR(128),max_update_version_code	VARCHAR(128),min_update_version_code	VARCHAR(128),max_os_api	TINYINT UNSIGNED,min_os_api	TINYINT UNSIGNED,cpu_arch	TINYINT UNSIGNED,channel	VARCHAR(128),title	VARCHAR(256),update_tips	VARCHAR(1024),enabled	BOOLEAN DEFAULT true,create_date DATETIME DEFAULT CURRENT_TIMESTAMP,PRIMARY KEY ( id ));")
 }
 
 func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error) {
-	OpenMysql()
-	defer db.Close()
-	devices := ltos(devicelst)
-	res, err := db.Exec("insert into rules(aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
+	//OpenMysql()
+	//defer db.Close()
+	var devices string
+	var res sql.Result
+	var err error
+	if devicelst != nil {
+		devices = ltos(devicelst)
+	} else {
+		devices = ""
+	}
+
+	res, err = db.Exec("insert into rules(aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
 	if err != nil {
 		panic(err)
 	}
@@ -52,15 +60,21 @@ func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error
 }
 
 func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {
-	OpenMysql()
-	defer db.Close()
-	devices := ltos(devicelst)
+	//OpenMysql()
+	//defer db.Close()
+	var devices string
+	if devicelst != nil {
+		devices = ltos(devicelst)
+	}
 	id := (*rulemap)["id"]
 	delete(*rulemap, "id")
 	if id == "" {
 		return errors.New("id can't be none")
 	}
-	_, err := db.Exec("update rules set device_list=? where id=?", devices, id)
+	var err error
+	if devicelst != nil {
+		_, err = db.Exec("update rules set device_list=? where id=?", devices, id)
+	}
 	checkErr(err)
 	for key, val := range *rulemap {
 		s := fmt.Sprintf("update rules set %s=? where id=?", key)
@@ -71,15 +85,15 @@ func MysqlUpdateRule(rulemap *map[string]string, devicelst *[]string) error {
 }
 
 func MysqlDeleteRule(ruleid string) error {
-	OpenMysql()
-	defer db.Close()
+	//OpenMysql()
+	//defer db.Close()
 	_, err := db.Exec("delete from rules where id=?", ruleid)
 	checkErr(err)
 	return err
 }
 func GetDownloadRatio(ruleid string) (float64, error) {
-	OpenMysql()
-	defer db.Close()
+	//OpenMysql()
+	//defer db.Close()
 	qres, _, err := MysqlQueryRules(ruleid)
 	checkErr(err)
 	res := (*qres)[0]
@@ -150,8 +164,8 @@ func ltos(sl *[]string) string {
 
 //根据id查询规则，"0"代表全部
 func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
-	OpenMysql()
-	defer db.Close()
+	//OpenMysql()
+	//defer db.Close()
 	if ruleid == "0" {
 		dbrows, err := db.Query("select * from rules")
 		if err != nil {
