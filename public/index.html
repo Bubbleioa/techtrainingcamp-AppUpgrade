@@ -301,7 +301,7 @@
             // })
             // console.log(document.forms[0])
             // $.post("/create_rule", data, (e)=>{})
-            console.log(JSON.stringify(data))
+            // console.log(JSON.stringify(data))
             $.ajax({
                 type: 'POST',
                 url: "/create_rule",
@@ -309,7 +309,10 @@
                 data: JSON.stringify(data),
                 dataType: 'json',
                 success: (res) => msgHint("创建成功"),
-                error: () => alert("请求失败,请您重新尝试")
+                error: (XMLHttpRequest, textStatus, errorThrown) => {
+                    console.log(XMLHttpRequest, textStatus, errorThrown)
+                    alert("请求失败,请您重新尝试")
+                }
             })
         })
 
@@ -347,5 +350,17 @@
 
     .form-check label:first-child {
         flex: calc(100% - 400px) 0 0;
+    }
+
+    #badd {
+        position: fixed;
+        left: 400px;
+        top: 200px;
+    }
+
+    #bquery {
+        position: fixed;
+        right: 400px;
+        top: 200px;
     }
 </style>

@@ -15,7 +15,7 @@ func main() {
 	defer database.RedisClose()
 	defer database.CloseMysql()
 	lst, _ := database.QueryAllRules()
-	for index, _ := range *lst {
+	for index := range *lst {
 		fmt.Println((*lst)[index]["id"])
 		database.RedisTouchRule((*lst)[index]["id"])
 	}
@@ -35,8 +35,8 @@ func main() {
 		r2.LoadHTMLGlob("./public/index.html")
 	}
 	adminRouter(r2)
-	// go r2.Run(":11451")
-	// time.Sleep(20 * time.Second)
-	// panic("NO!!!!!")
 	r2.Run(":11451")
+	//time.Sleep(20 * time.Second)
+	//panic("NO!!!!!")
+	//r2.Run(":11451")
 }
