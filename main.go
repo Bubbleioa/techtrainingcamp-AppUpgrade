@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"runtime/pprof"
 	"techtrainingcamp-AppUpgrade/database"
 	"time"
 
@@ -11,19 +9,19 @@ import (
 )
 
 func main() {
-	database.RedisInitClient()
-	database.OpenMysql()
-	defer database.RedisClose()
-	defer database.CloseMysql()
-	lst, _ := database.QueryAllRules()
-	for index, _ := range *lst {
-		fmt.Println((*lst)[index]["id"])
-		database.RedisTouchRule((*lst)[index]["id"])
-	}
-	f, _ := os.OpenFile("cpu.pprof", os.O_CREATE|os.O_RDWR, 0644)
-	defer f.Close()
-	pprof.StartCPUProfile(f)
-	defer pprof.StopCPUProfile()
+	//database.RedisInitClient()
+	//database.OpenMysql()
+	//defer database.RedisClose()
+	//defer database.CloseMysql()
+	// lst, _ := database.QueryAllRules()
+	// for index, _ := range *lst {
+	// 	fmt.Println((*lst)[index]["id"])
+	// 	database.RedisTouchRule((*lst)[index]["id"])
+	// }
+	// f, _ := os.OpenFile("cpu.pprof", os.O_CREATE|os.O_RDWR, 0644)
+	// defer f.Close()
+	// pprof.StartCPUProfile(f)
+	// defer pprof.StopCPUProfile()
 	r := gin.Default()
 	customizeouter(r)
 	go r.Run(":8080")
