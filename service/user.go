@@ -140,7 +140,9 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 	var respRuleId string
 	for index := 0; index < len(*idList); index++ {
 		ruleid := (*idList)[index]
-		isEnabled, _ := database.GetRuleAtt(ruleid, "enabled")
+		qres, _, _ := database.QueryRuleByID(ruleid)
+		res := (*qres)[0]
+		isEnabled, _ := res["enabled"]
 		if !cast.ToBool(isEnabled) {
 			continue
 		}
@@ -154,6 +156,7 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 		ruleMaxOsApi, _ := qObj.GetRuleAtt(ruleid, "max_os_api")
 		ruleMinUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "min_update_version_code")
 		ruleMaxUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "max_update_version_code")
+
 		if strings.Compare(aid, ruleAid) == 0 &&
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
 			strings.Compare(cpuArch, ruleCpuArch) == 0 &&
@@ -163,16 +166,50 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 			cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
 			tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
 			tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 {
-			respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
-			respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
-			respMd5, _ = database.GetRuleAtt(ruleid, "md5")
-			respTitle, _ = database.GetRuleAtt(ruleid, "title")
-			respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
-			respRuleId, _ = database.GetRuleAtt(ruleid, "id")
+			respUrl, _ = res["download_url"]
+			respUpdateVersionCode, _ = res["update_version_code"]
+			respMd5, _ = res["md5"]
+			respTitle, _ = res["title"]
+			respUpdateTips, _ = res["update_tips"]
+			respRuleId, _ = res["id"]
 			break
 		}
 
 	}
+	// for index := 0; index < len(*idList); index++ {
+	// 	ruleid := (*idList)[index]
+	// 	isEnabled, _ := database.GetRuleAtt(ruleid, "enabled")
+	// 	if !cast.ToBool(isEnabled) {
+	// 		continue
+	// 	}
+	// 	ruleAid, _ := database.GetRuleAtt(ruleid, "aid")
+	// 	rulePlatform, _ := database.GetRuleAtt(ruleid, "platform")
+	// 	ruleCpuArch, _ := database.GetRuleAtt(ruleid, "cpu_arch")
+	// 	ruleChannel, _ := database.GetRuleAtt(ruleid, "channel")
+	// 	isDeviceIDValue, _ := database.CheckDeviceIDInWhiteList(ruleid, deviceId)
+	// 	ruleMinOsApi, _ := database.GetRuleAtt(ruleid, "min_os_api")
+	// 	ruleMaxOsApi, _ := database.GetRuleAtt(ruleid, "max_os_api")
+	// 	ruleMinUpdateVersionCode, _ := database.GetRuleAtt(ruleid, "min_update_version_code")
+	// 	ruleMaxUpdateVersionCode, _ := database.GetRuleAtt(ruleid, "max_update_version_code")
+	// 	if strings.Compare(aid, ruleAid) == 0 &&
+	// 		strings.Compare(devicePlatform, rulePlatform) == 0 &&
+	// 		strings.Compare(cpuArch, ruleCpuArch) == 0 &&
+	// 		strings.Compare(channel, ruleChannel) == 0 &&
+	// 		isDeviceIDValue &&
+	// 		cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
+	// 		cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
+	// 		tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
+	// 		tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 {
+	// 		respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
+	// 		respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
+	// 		respMd5, _ = database.GetRuleAtt(ruleid, "md5")
+	// 		respTitle, _ = database.GetRuleAtt(ruleid, "title")
+	// 		respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+	// 		respRuleId, _ = database.GetRuleAtt(ruleid, "id")
+	// 		break
+	// 	}
+
+	// }
 	return respRuleId, respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips
 }
 

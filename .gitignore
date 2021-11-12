@@ -14,7 +14,7 @@
 *.dylib
 *.rdb
 techtrainingcamp-AppUpgrade
-
+*.pprof
 
 # Test binary, built with `go test -c`
 *.test
