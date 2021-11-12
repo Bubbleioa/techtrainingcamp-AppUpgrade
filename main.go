@@ -1,18 +1,14 @@
 package main
 
 import (
-	"os"
-	"techtrainingcamp-AppUpgrade/database"
-	"time"
-
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	//database.RedisInitClient()
-	//database.OpenMysql()
-	//defer database.RedisClose()
-	//defer database.CloseMysql()
+	// database.RedisInitClient()
+	// database.OpenMysql()
+	// defer database.RedisClose()
+	// defer database.CloseMysql()
 	// lst, _ := database.QueryAllRules()
 	// for index, _ := range *lst {
 	// 	fmt.Println((*lst)[index]["id"])
@@ -24,18 +20,18 @@ func main() {
 	// defer pprof.StopCPUProfile()
 	r := gin.Default()
 	customizeouter(r)
-	go r.Run(":8080")
+	r.Run(":8080")
 
-	r2 := gin.Default()
-	if os.Getenv("IS_DOCKER") == "1" {
-		r2.LoadHTMLGlob("/root/public/index.html")
-		database.MysqlCreateTable()
-	} else {
-		r2.LoadHTMLGlob("./public/index.html")
-	}
-	adminRouter(r2)
-	go r2.Run(":11451")
-	time.Sleep(20 * time.Second)
-	panic("NO!!!!!")
+	// r2 := gin.Default()
+	// if os.Getenv("IS_DOCKER") == "1" {
+	// 	r2.LoadHTMLGlob("/root/public/index.html")
+	// 	database.MysqlCreateTable()
+	// } else {
+	// 	r2.LoadHTMLGlob("./public/index.html")
+	// }
+	// adminRouter(r2)
+	// go r2.Run(":11451")
+	// time.Sleep(20 * time.Second)
+	// panic("NO!!!!!")
 	// r2.Run(":11451")
 }
