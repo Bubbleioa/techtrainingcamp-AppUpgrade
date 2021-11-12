@@ -132,7 +132,14 @@
         let data = {}
         $(".form-group input").each((id, e) => {
             if (e.value != "") {
-                data[$(e).attr("name")] = e.value
+                let nm = $(e).attr("name")
+                if (nm == "device_id_list") {
+                    let id_lst = e.value
+                    let lst = id_lst.split(',')
+                    data["device_id_list"] = lst
+                } else {
+                    data[nm] = e.value
+                }
             }
             
             // console.log($(e).attr("name") + " " + e.value)
@@ -293,7 +300,14 @@
             // var data = new FormData($("#form1")[0]);
             let data = {}
             $(".form-group input").each((id, e) => {
-                data[$(e).attr("name")] = e.value
+                let nm = $(e).attr("name")
+                if (nm == "device_id_list") {
+                    let id_lst = e.value
+                    let lst = id_lst.split(',')
+                    data["device_id_list"] = lst
+                } else {
+                    data[nm] = e.value
+                }
                 // console.log($(e).attr("name") + " " + e.value)
             })
             // $("input").forEach(e => {
