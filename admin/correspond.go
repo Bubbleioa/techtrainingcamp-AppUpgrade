@@ -93,7 +93,7 @@ func UpdateRule(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func CreateRule(c *gin.Context) {
@@ -101,14 +101,15 @@ func CreateRule(c *gin.Context) {
 	fmt.Println(c)
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
-	if e != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
-	}
-	e = database.AddRule(mm, lst)
-	if e != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
-	}
-	c.Status(http.StatusOK)
+	fmt.Println(mm, lst, e)
+	// if e != nil {
+	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
+	// }
+	// e = database.AddRule(mm, lst)
+	// if e != nil {
+	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
+	// }
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func DeleteRule(c *gin.Context) {
@@ -131,6 +132,6 @@ func DisableRule(c *gin.Context) {
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	} else {
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, gin.H{})
 	}
 }
