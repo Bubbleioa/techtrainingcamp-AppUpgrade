@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"techtrainingcamp-AppUpgrade/model"
+	"techtrainingcamp-AppUpgrade/tools"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -29,10 +30,12 @@ func Hit(c *gin.Context) {
 		for field, cnd := range cs {
 			ok, err := cnd.SuccessStr(c.Query(field))
 			if err != nil {
+				tools.LogMsg(err)
 				fmt.Println(err)
 				return
 			}
 			if !ok {
+				tools.LogMsg(field, cnd, c.Query(field))
 				fmt.Println(field, cnd, c.Query(field))
 				flag = false
 				break

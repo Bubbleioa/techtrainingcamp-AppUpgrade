@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"techtrainingcamp-AppUpgrade/tools"
 	"time"
 
 	"github.com/go-sql-driver/mysql"
@@ -20,6 +21,7 @@ const UPDATETIME = 5
 
 func checkErr(err error) {
 	if err != nil {
+		tools.LogfMsg("checkErr:%v\n", err)
 		fmt.Printf("checkErr:%v\n", err)
 	}
 }
@@ -63,6 +65,7 @@ func ToInt(intObj interface{}) int {
 	case uint64:
 		if v > math.MaxInt64 {
 			info := fmt.Sprintf("ToInt, error, overflowd %v", v)
+			tools.LogfMsg("ToInt, error, overflowd %v", v)
 			panic(info)
 		}
 		return int(v)
@@ -84,6 +87,8 @@ func ToInt(intObj interface{}) int {
 	}
 	fmt.Printf(fmt.Sprintf("ToInt err, %v, %v not supportted\n", intObj,
 		reflect.TypeOf(intObj).Kind()))
+	tools.LogfMsg("ToInt err, %v, %v not supportted\n", intObj,
+		reflect.TypeOf(intObj).Kind())
 	return 0
 }
 
@@ -140,6 +145,7 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	res, devices, err := RedisQueryRuleByID(ruleid)
 	if err != nil || len(*res) == 0 {
 		fmt.Println(res)
+		tools.LogMsg(err)
 	} else {
 		return res, devices, err
 	}
@@ -147,6 +153,7 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	res, devices, err = MysqlQueryRules(ruleid)
 	if err != nil || len(*res) == 0 {
 		fmt.Println("Wrong ID!")
+		tools.LogMsg("Wrong ID!")
 		return res, devices, err
 	}
 	RedisUpdateRuleWithList(ruleid, &(*res)[0])
