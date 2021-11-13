@@ -1,8 +1,8 @@
 package main
 
 import (
+	"os"
 	"techtrainingcamp-AppUpgrade/admin"
-
 	"techtrainingcamp-AppUpgrade/service"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,11 @@ func customizeouter(r *gin.Engine) {
 }
 
 func adminRouter(r *gin.Engine) {
-	r.LoadHTMLFiles("public/index.html")
+	if os.Getenv("IS_DOCKER") == "1" {
+		r.LoadHTMLFiles("/root/public/index.html")
+	} else {
+		r.LoadHTMLFiles("./public/index.html")
+	}
 	r.GET("/index", admin.GetHTML)
 	r.GET("/query_all_rules", admin.QueryAllRules)
 	r.GET("/query_rule", admin.QueryRule)

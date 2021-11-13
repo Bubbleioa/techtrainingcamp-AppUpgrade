@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 	"techtrainingcamp-AppUpgrade/database"
 	"techtrainingcamp-AppUpgrade/tools"
@@ -14,8 +15,8 @@ func GetHTML(c *gin.Context) {
 
 func QueryAllRules(c *gin.Context) {
 
-	// lst, e := database.QueryAllRules()
-	lst, e := query_allrules_testbench()
+	lst, e := database.QueryAllRules()
+	// lst, e := query_allrules_testbench()
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"message": e.Error()})
 		return
@@ -27,8 +28,8 @@ func QueryAllRules(c *gin.Context) {
 func QueryRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
 
-	// ml, lst, e := database.QueryRuleByID(ruleid)
-	ml, lst, e := queryrulebyid_testbench(ruleid)
+	ml, lst, e := database.QueryRuleByID(ruleid)
+	// ml, lst, e := queryrulebyid_testbench(ruleid)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	}
@@ -58,8 +59,8 @@ func UpdateRule(c *gin.Context) {
 		return
 	}
 
-	// oldrules, oldlst, e := database.QueryRuleByID(v)
-	oldrules, oldlst, e := queryrulebyid_testbench(v)
+	oldrules, oldlst, e := database.QueryRuleByID(v)
+	// oldrules, oldlst, e := queryrulebyid_testbench(v)
 
 	oldrule := (*oldrules)[0]
 	if e != nil {
@@ -78,25 +79,28 @@ func UpdateRule(c *gin.Context) {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Invalid value"})
 		return
 	}
+
 	if lst != nil {
 
-		// e = database.UpdateRule(&oldrule, lst)
-		e = update_database_testbench(&oldrule, lst)
+		e = database.UpdateRule(&oldrule, lst)
+		// e = update_database_testbench(&oldrule, lst)
 	} else {
-		// e = database.UpdateRule(&oldrule, oldlst)
-		e = update_database_testbench(&oldrule, oldlst)
+
+		e = database.UpdateRule(&oldrule, oldlst)
+		// e = update_database_testbench(&oldrule, oldlst)
 	}
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
 		return
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func CreateRule(c *gin.Context) {
 	mp := make(map[string]interface{})
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
+	fmt.Println(mm, lst, e)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
 	}
@@ -104,7 +108,7 @@ func CreateRule(c *gin.Context) {
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
 	}
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func DeleteRule(c *gin.Context) {
@@ -119,14 +123,21 @@ func DeleteRule(c *gin.Context) {
 
 func DisableRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
+	able := c.Query("enabled")
+	var v string
+	if able == "true" {
+		v = "1"
+	} else {
+		v = "0"
+	}
 	m := map[string]string{
 		"id":      ruleid,
-		"enabled": "false",
+		"enabled": v,
 	}
 	e := database.UpdateRule(&m, nil)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": e.Error()})
 	} else {
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, gin.H{})
 	}
 }

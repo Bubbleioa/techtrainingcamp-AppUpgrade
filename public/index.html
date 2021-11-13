@@ -21,7 +21,11 @@
     </div>
     <div id="add">
         <form id="form1" role="form">
-
+            <div class="form-group">
+                <label>aid
+                    <input id="input_platform" name="aid" />
+                </label>
+            </div>
             <div class="form-group">
                 <label>平台
                     <input id="input_platform" name="platform" />
@@ -125,17 +129,30 @@
     </div>
 </body>
 <script>
+    var currID
     $("#updatebutton").click(e => {
         e.preventDefault()
-        var data = new FormData($("#form1")[0]);
-        console.log(data)
+        // var data = new FormData($("#form1")[0]);
+        let data = {}
+        $(".form-group input").each((id, e) => {
+            if (e.value != "") {
+                let nm = $(e).attr("name")
+                if (nm == "device_id_list") {
+                    let id_lst = e.value
+                    let lst = id_lst.split(',')
+                    data["device_id_list"] = lst
+                } else {
+                    data[nm] = e.value
+                }
+            }
+            
+            // console.log($(e).attr("name") + " " + e.value)
+        })
+        data["id"] = currID
         $.ajax({
-            type: 'post',
+            type: 'POST',
             url: "/update_rule",
-            cache: false,
-            processData: false,
-            contentType: false,
-            data: data,
+            data: JSON.stringify(data),
             dataType: 'json',
             success: res => {
                 $("#updatebutton").hide()
@@ -194,8 +211,8 @@
             $("#uniqueul").append(`<li><span>${key}:</span>${res[key]}</li>`)
             
         }
-        if (res["enabled"] == false) txt = "重新上线"
-        let id = res["ruleid"];
+        if (res["enabled"] != 1) txt = "重新上线"
+        let id = res["id"];
         // for (i in res) {
         //     for (j in res[i]) {
         //         $("#uniqueul").append(`<li><span>${j}:</span>${res[i][j]}</li>`)
@@ -205,7 +222,7 @@
         $("#disablerule").html(txt)
         $("#disablerule").click(e => {
             e.preventDefault()
-            disordle(`/disable_rule?ruleid=${id}`)
+            disordle(`/disable_rule?ruleid=${id}&enabled=${res["enabled"]==0}`)
         })
         $("#deleterule").click(e => {
             e.preventDefault()
@@ -219,12 +236,13 @@
         })
         $("#updaterule").click(e => {
             e.preventDefault()
-            updateRule(res[i])
+            updateRule(res["ruleid"])
         })
     }
 
     const showInDetail = id => {
         let requrl = `/query_rule?ruleid=${id}`
+        currID = id
         $.ajax({
             type: 'get',
             url: requrl,
@@ -236,6 +254,7 @@
 
     const showAll = (res) => {
         res = JSON.parse(res)
+        console.log(res)
         for (let i in res) {
             let cnt = 0
             s = JSON.stringify(res[i])
@@ -249,7 +268,7 @@
             $(`#${i}`).click(e => {
                 e.preventDefault()
                 $("#queryol").empty();
-                showInDetail(i)
+                showInDetail(res[i]["id"])
             })
         }
     }
@@ -282,18 +301,36 @@
 
 
         $("#submitadd").click(function () {
-            var data = new FormData($("#form1")[0]);
-            console.log(data)
+            // var data = new FormData($("#form1")[0]);
+            let data = {}
+            $(".form-group input").each((id, e) => {
+                let nm = $(e).attr("name")
+                if (nm == "device_id_list") {
+                    let id_lst = e.value
+                    let lst = id_lst.split(',')
+                    data["device_id_list"] = lst
+                } else {
+                    data[nm] = e.value
+                }
+                // console.log($(e).attr("name") + " " + e.value)
+            })
+            // $("input").forEach(e => {
+            //     console.log(e)
+            // })
+            // console.log(document.forms[0])
+            // $.post("/create_rule", data, (e)=>{})
+             console.log(JSON.stringify(data))
             $.ajax({
-                type: 'post',
+                type: 'POST',
                 url: "/create_rule",
-                cache: false,
-                processData: false,
-                contentType: false,
-                data: data,
+                contentType: "application/json",
+                data: JSON.stringify(data),
                 dataType: 'json',
                 success: (res) => msgHint("创建成功"),
-                error: () => alert("请求失败,请您重新尝试")
+                error: (XMLHttpRequest, textStatus, errorThrown) => {
+                    console.log(XMLHttpRequest, textStatus, errorThrown)
+                    alert("请求失败,请您重新尝试")
+                }
             })
         })
 
@@ -331,5 +368,17 @@
 
     .form-check label:first-child {
         flex: calc(100% - 400px) 0 0;
+    }
+
+    #badd {
+        position: fixed;
+        left: 400px;
+        top: 200px;
+    }
+
+    #bquery {
+        position: fixed;
+        right: 400px;
+        top: 200px;
     }
 </style>
