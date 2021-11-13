@@ -159,22 +159,29 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 
 		if strings.Compare(aid, ruleAid) == 0 &&
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
-			strings.Compare(cpuArch, ruleCpuArch) == 0 &&
-			strings.Compare(channel, ruleChannel) == 0 &&
-			isDeviceIDValue &&
-			cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
-			cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
-			tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
-			tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 {
-			respUrl, _ = res["download_url"]
-			respUpdateVersionCode, _ = res["update_version_code"]
-			respMd5, _ = res["md5"]
-			respTitle, _ = res["title"]
-			respUpdateTips, _ = res["update_tips"]
-			respRuleId, _ = res["id"]
-			break
+			strings.Compare(channel, ruleChannel) == 0 {
+			if isDeviceIDValue {
+				respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
+				respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
+				respMd5, _ = database.GetRuleAtt(ruleid, "md5")
+				respTitle, _ = database.GetRuleAtt(ruleid, "title")
+				respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+				break
+			} else {
+				if cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
+					cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
+					tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
+					tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 &&
+					strings.Compare(cpuArch, ruleCpuArch) == 0 {
+					respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
+					respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
+					respMd5, _ = database.GetRuleAtt(ruleid, "md5")
+					respTitle, _ = database.GetRuleAtt(ruleid, "title")
+					respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+					break
+				}
+			}
 		}
-
 	}
 	// for index := 0; index < len(*idList); index++ {
 	// 	ruleid := (*idList)[index]
