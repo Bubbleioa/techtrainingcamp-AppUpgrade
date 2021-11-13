@@ -153,21 +153,29 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 		ruleMaxUpdateVersionCode, _ := database.GetRuleAtt(ruleid, "max_update_version_code")
 		if strings.Compare(aid, ruleAid) == 0 &&
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
-			strings.Compare(cpuArch, ruleCpuArch) == 0 &&
-			strings.Compare(channel, ruleChannel) == 0 &&
-			isDeviceIDValue &&
-			cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
-			cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
-			tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
-			tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 {
-			respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
-			respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
-			respMd5, _ = database.GetRuleAtt(ruleid, "md5")
-			respTitle, _ = database.GetRuleAtt(ruleid, "title")
-			respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
-			break
+			strings.Compare(channel, ruleChannel) == 0 {
+			if isDeviceIDValue {
+				respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
+				respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
+				respMd5, _ = database.GetRuleAtt(ruleid, "md5")
+				respTitle, _ = database.GetRuleAtt(ruleid, "title")
+				respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+				break
+			} else {
+				if cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
+					cast.ToInt(osApi) <= cast.ToInt(ruleMaxOsApi) &&
+					tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
+					tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 &&
+					strings.Compare(cpuArch, ruleCpuArch) == 0 {
+					respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
+					respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
+					respMd5, _ = database.GetRuleAtt(ruleid, "md5")
+					respTitle, _ = database.GetRuleAtt(ruleid, "title")
+					respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+					break
+				}
+			}
 		}
-
 	}
 	return respUrl, respUpdateVersionCode, respMd5, respTitle, respUpdateTips
 }
