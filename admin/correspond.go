@@ -98,17 +98,16 @@ func UpdateRule(c *gin.Context) {
 
 func CreateRule(c *gin.Context) {
 	mp := make(map[string]interface{})
-	fmt.Println(c)
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
 	fmt.Println(mm, lst, e)
-	// if e != nil {
-	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
-	// }
-	// e = database.AddRule(mm, lst)
-	// if e != nil {
-	// 	c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
-	// }
+	if e != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
+	}
+	e = database.AddRule(mm, lst)
+	if e != nil {
+		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Data insert error..."})
+	}
 	c.JSON(http.StatusOK, gin.H{})
 }
 
