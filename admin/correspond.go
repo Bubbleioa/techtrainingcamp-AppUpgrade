@@ -123,9 +123,16 @@ func DeleteRule(c *gin.Context) {
 
 func DisableRule(c *gin.Context) {
 	ruleid := c.Query("ruleid")
+	able := c.Query("enabled")
+	var v string
+	if able == "true" {
+		v = "1"
+	} else {
+		v = "0"
+	}
 	m := map[string]string{
 		"id":      ruleid,
-		"enabled": "false",
+		"enabled": v,
 	}
 	e := database.UpdateRule(&m, nil)
 	if e != nil {

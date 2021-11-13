@@ -218,7 +218,7 @@
         $("#disablerule").html(txt)
         $("#disablerule").click(e => {
             e.preventDefault()
-            disordle(`/disable_rule?ruleid=${id}`)
+            disordle(`/disable_rule?ruleid=${id}&enabled=${res["enabled"]==0}`)
         })
         $("#deleterule").click(e => {
             e.preventDefault()
