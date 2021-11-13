@@ -14,6 +14,7 @@ func main() {
 	database.OpenMysql()
 	defer database.RedisClose()
 	defer database.CloseMysql()
+	database.MysqlCreateTable()
 	lst, _ := database.QueryAllRules()
 	for index := range *lst {
 		fmt.Println((*lst)[index]["id"])
