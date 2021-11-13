@@ -121,70 +121,83 @@ func JudgeLegalRule(rule *map[string]string) bool {
 	if ((*rule)["platform"] != "" &&
 		strings.ToLower((*rule)["platform"]) != "ios" && strings.ToLower((*rule)["platform"]) != "android") ||
 		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != "") {
+		LogMsg("platform not match")
 		fmt.Println("1")
 		return false
 	}
 	for i, r := range (*rule)["update_version_code"] {
 		if !unicode.IsDigit(r) && r != '.' {
+			LogMsg("illegal upvcode:", r)
 			fmt.Println("2")
 			return false
 		}
 		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
+			LogMsg("Consequence .")
 			fmt.Println("3")
 			return false
 		}
 	}
 	for i, r := range (*rule)["min_update_version_code"] {
 		if !unicode.IsDigit(r) && r != '.' {
+			LogMsg("illegal minupvcode:", r)
 			fmt.Println("4")
 			return false
 		}
 		if i > 0 && (*rule)["min_update_version_code"][i-1] == '.' && r == '.' {
+			LogMsg("Consequence .")
 			fmt.Println("5")
 			return false
 		}
 	}
 	for i, r := range (*rule)["max_update_version_code"] {
 		if !unicode.IsDigit(r) && r != '.' {
+			LogMsg("illegal max upvcode:", r)
 			fmt.Println("6")
 			return false
 		}
 		if i > 0 && (*rule)["max_update_version_code"][i-1] == '.' && r == '.' {
+			LogMsg("Consequence .")
 			fmt.Println("7")
 			return false
 		}
 	}
 	for i, r := range (*rule)["min_os_api"] {
 		if !unicode.IsDigit(r) && r != '.' {
+			LogMsg("illegal min osapi:", r)
 			fmt.Println("8")
 			return false
 		}
 		if i > 0 && (*rule)["min_os_api"][i-1] == '.' && r == '.' {
+			LogMsg("Consequence .")
 			fmt.Println("9")
 			return false
 		}
 	}
 	for i, r := range (*rule)["max_os_api"] {
 		if !unicode.IsDigit(r) && r != '.' {
+			LogMsg("illegal max osapi:", r)
 			fmt.Println("10")
 			return false
 		}
 		if i > 0 && (*rule)["max_os_api"][i-1] == '.' && r == '.' {
+			LogMsg("Consequence .")
 			fmt.Println("11")
 			return false
 		}
 	}
 	if ((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] != "" &&
 		VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1) ||
-		((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "")||
-		((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != ""){
+		((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "") ||
+		((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != "") {
+		LogMsg("字段爲空")
 		fmt.Println("12")
 		return false
 	}
 	if ((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] != "" &&
-		VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1)||
-		((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] == "")||
-		((*rule)["min_os_api"] == "" && (*rule)["max_os_api"] != ""){
+		VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1) ||
+		((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] == "") ||
+		((*rule)["min_os_api"] == "" && (*rule)["max_os_api"] != "") {
+		LogMsg("不符合的api")
 		fmt.Println("13")
 		return false
 	}
