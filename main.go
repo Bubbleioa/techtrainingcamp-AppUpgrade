@@ -5,11 +5,14 @@ import (
 	"os"
 	"runtime/pprof"
 	"techtrainingcamp-AppUpgrade/database"
+	"techtrainingcamp-AppUpgrade/tools"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	tools.Init()
+
 	database.RedisInitClient()
 	database.OpenMysql()
 	defer database.RedisClose()

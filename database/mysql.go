@@ -7,6 +7,7 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"techtrainingcamp-AppUpgrade/tools"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -25,6 +26,7 @@ func OpenMysql() error {
 		db, err = sql.Open("mysql", "test:123456@/app") //用户名:密码@/数据库名
 	}
 	if err != nil {
+		tools.LogMsg("数据库链接错误", err)
 		fmt.Println("数据库链接错误", err)
 	}
 	//延迟到函数结束关闭链接
@@ -56,6 +58,7 @@ func MysqlAddRule(rulemap *map[string]string, devicelst *[]string) (int64, error
 
 	res, err = db.Exec("insert into rules(aid,platform,download_url,update_version_code,device_list,md5,max_update_version_code,min_update_version_code,max_os_api,min_os_api,cpu_arch,channel,title,update_tips) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (*rulemap)["aid"], (*rulemap)["platform"], (*rulemap)["download_url"], (*rulemap)["update_version_code"], devices, (*rulemap)["md5"], (*rulemap)["max_update_version_code"], (*rulemap)["min_update_version_code"], (*rulemap)["max_os_api"], (*rulemap)["min_os_api"], (*rulemap)["cpu_arch"], (*rulemap)["channel"], (*rulemap)["title"], (*rulemap)["update_tips"])
 	if err != nil {
+		tools.LogMsg(err)
 		panic(err)
 	}
 	val, _ := res.LastInsertId()
@@ -173,6 +176,7 @@ func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
 	if ruleid == "0" {
 		dbrows, err := db.Query("select * from rules")
 		if err != nil {
+			tools.LogMsg(err)
 			panic(err)
 			// return nil, err
 		}
@@ -181,6 +185,7 @@ func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
 	} else {
 		dbrows, err := db.Query("select * from rules where id=?", ruleid)
 		if err != nil {
+			tools.LogMsg(err)
 			panic(err)
 			// return nil, err
 		}

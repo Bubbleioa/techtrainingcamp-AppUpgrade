@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"strings"
+	"techtrainingcamp-AppUpgrade/tools"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -75,6 +76,7 @@ func RedisTouchRule(ruleid string) {
 	//defer rdb.Close()
 	err := rdb.SAdd(ctx, "IDList", ruleid).Err()
 	if err != nil {
+		tools.LogMsg(err)
 		panic(err)
 	}
 }
