@@ -207,7 +207,7 @@
             $("#uniqueul").append(`<li><span>${key}:</span>${res[key]}</li>`)
             
         }
-        if (res["enabled"] == false) txt = "重新上线"
+        if (res["enabled"] != 1) txt = "重新上线"
         let id = res["id"];
         // for (i in res) {
         //     for (j in res[i]) {
