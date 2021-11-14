@@ -192,7 +192,7 @@ func JudgeLegalRule(rule *map[string]string) bool {
 		VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1) ||
 		((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "") ||
 		((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != "") {
-		LogMsg("字段爲空")
+		LogMsg("更新版本範圍有誤")
 		fmt.Println("12")
 		return false
 	}
