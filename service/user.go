@@ -175,6 +175,7 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 					tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
 					tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 &&
 					strings.Compare(cpuArch, ruleCpuArch) == 0 {
+					respRuleId = ruleid
 					respUrl, _ = qObj.GetRuleAtt(ruleid, "download_url")
 					respUpdateVersionCode, _ = qObj.GetRuleAtt(ruleid, "update_version_code")
 					respMd5, _ = qObj.GetRuleAtt(ruleid, "md5")
