@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"unicode"
@@ -125,83 +126,111 @@ func JudgeLegalRule(rule *map[string]string) bool {
 		strings.ToLower((*rule)["platform"]) != "ios" && strings.ToLower((*rule)["platform"]) != "android") ||
 		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != "") {
 		LogMsg("platform not match")
-		fmt.Println("1")
+
 		return false
 	}
-	for i, r := range (*rule)["update_version_code"] {
-		if !unicode.IsDigit(r) && r != '.' {
-			LogMsg("illegal upvcode:", r)
-			fmt.Println("2")
-			return false
-		}
-		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
-			LogMsg("Consequence .")
-			fmt.Println("3")
-			return false
-		}
+
+	vcode1 := (*rule)["update_version_code"]
+	reg := regexp.MustCompile(`^\d+(\.\d+)*$`)
+	if !reg.MatchString(vcode1) {
+		LogfMsg("invalid update version code %v", vcode1)
+		return false
 	}
-	for i, r := range (*rule)["min_update_version_code"] {
-		if !unicode.IsDigit(r) && r != '.' {
-			LogMsg("illegal minupvcode:", r)
-			fmt.Println("4")
-			return false
-		}
-		if i > 0 && (*rule)["min_update_version_code"][i-1] == '.' && r == '.' {
-			LogMsg("Consequence .")
-			fmt.Println("5")
-			return false
-		}
+	vcode2 := (*rule)["max_update_version_code"]
+	if !reg.MatchString(vcode2) {
+		LogfMsg("invalid update version code %v", vcode2)
+		return false
 	}
-	for i, r := range (*rule)["max_update_version_code"] {
-		if !unicode.IsDigit(r) && r != '.' {
-			LogMsg("illegal max upvcode:", r)
-			fmt.Println("6")
-			return false
-		}
-		if i > 0 && (*rule)["max_update_version_code"][i-1] == '.' && r == '.' {
-			LogMsg("Consequence .")
-			fmt.Println("7")
-			return false
-		}
+	vcode3 := (*rule)["min_update_version_code"]
+	if !reg.MatchString(vcode3) {
+		LogfMsg("invalid update version code %v", vcode3)
+		return false
 	}
-	for i, r := range (*rule)["min_os_api"] {
-		if !unicode.IsDigit(r) && r != '.' {
-			LogMsg("illegal min osapi:", r)
-			fmt.Println("8")
-			return false
-		}
-		if i > 0 && (*rule)["min_os_api"][i-1] == '.' && r == '.' {
-			LogMsg("Consequence .")
-			fmt.Println("9")
-			return false
-		}
+	vcode4 := (*rule)["min_os_api"]
+	if !reg.MatchString(vcode4) {
+		LogfMsg("invalid update version code %v", vcode4)
+		return false
 	}
-	for i, r := range (*rule)["max_os_api"] {
-		if !unicode.IsDigit(r) && r != '.' {
-			LogMsg("illegal max osapi:", r)
-			fmt.Println("10")
-			return false
-		}
-		if i > 0 && (*rule)["max_os_api"][i-1] == '.' && r == '.' {
-			LogMsg("Consequence .")
-			fmt.Println("11")
-			return false
-		}
+	vcode5 := (*rule)["max_os_api"]
+	if !reg.MatchString(vcode5) {
+		LogfMsg("invalid update version code %v", vcode5)
+		return false
 	}
+	// for i, r := range (*rule)["update_version_code"] {
+	// 	if !unicode.IsDigit(r) && r != '.' {
+	// 		LogMsg("illegal upvcode:", r)
+
+	// 		return false
+	// 	}
+	// 	if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
+	// 		LogMsg("Consequence .")
+
+	// 		return false
+	// 	}
+	// }
+	// for i, r := range (*rule)["min_update_version_code"] {
+	// 	if !unicode.IsDigit(r) && r != '.' {
+	// 		LogMsg("illegal minupvcode:", r)
+
+	// 		return false
+	// 	}
+	// 	if i > 0 && (*rule)["min_update_version_code"][i-1] == '.' && r == '.' {
+	// 		LogMsg("Consequence .")
+
+	// 		return false
+	// 	}
+	// }
+	// for i, r := range (*rule)["max_update_version_code"] {
+	// 	if !unicode.IsDigit(r) && r != '.' {
+	// 		LogMsg("illegal max upvcode:", r)
+
+	// 		return false
+	// 	}
+	// 	if i > 0 && (*rule)["max_update_version_code"][i-1] == '.' && r == '.' {
+	// 		LogMsg("Consequence .")
+
+	// 		return false
+	// 	}
+	// }
+	// for i, r := range (*rule)["min_os_api"] {
+	// 	if !unicode.IsDigit(r) && r != '.' {
+	// 		LogMsg("illegal min osapi:", r)
+
+	// 		return false
+	// 	}
+	// 	if i > 0 && (*rule)["min_os_api"][i-1] == '.' && r == '.' {
+	// 		LogMsg("Consequence .")
+
+	// 		return false
+	// 	}
+	// }
+	// for i, r := range (*rule)["max_os_api"] {
+	// 	if !unicode.IsDigit(r) && r != '.' {
+	// 		LogMsg("illegal max osapi:", r)
+
+	// 		return false
+	// 	}
+	// 	if i > 0 && (*rule)["max_os_api"][i-1] == '.' && r == '.' {
+	// 		LogMsg("Consequence .")
+
+	// 		return false
+	// 	}
+	// }
 	if ((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] != "" &&
 		VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1) ||
 		((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "") ||
 		((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != "") {
-		LogMsg("字段爲空")
-		fmt.Println("12")
+		LogMsg("更新版本範圍有誤")
+
 		return false
 	}
+	LogfMsg("%v %v %v", (*rule)["min_os_api"], (*rule)["max_os_api"], VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]))
 	if ((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] != "" &&
 		VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1) ||
 		((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] == "") ||
 		((*rule)["min_os_api"] == "" && (*rule)["max_os_api"] != "") {
 		LogMsg("不符合的api")
-		fmt.Println("13")
+
 		return false
 	}
 	return true
@@ -210,38 +239,38 @@ func JudgeAppData(rule *map[string]string) bool {
 	if ((*rule)["device_platform"] != "" &&
 		strings.ToLower((*rule)["device_platform"]) != "ios" && strings.ToLower((*rule)["device_platform"]) != "android") ||
 		((*rule)["cpu_arch"] != "32" && (*rule)["cpu_arch"] != "64" && (*rule)["cpu_arch"] != "") {
-		fmt.Println("1")
+
 		return false
 	}
 	_, ok := (*rule)["os_api"]
 	if (strings.ToLower((*rule)["device_platform"]) == "ios" && ok) ||
 		(strings.ToLower((*rule)["device_platform"]) == "android" && !ok) {
-		fmt.Println("2")
+
 		return false
 	}
 	for i, r := range (*rule)["update_version_code"] {
 		if !unicode.IsDigit(r) && r != '.' {
-			fmt.Println("3")
+
 			return false
 		}
 		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
-			fmt.Println("4")
+
 			return false
 		}
 	}
 	for i, r := range (*rule)["os_api"] {
 		if !unicode.IsDigit(r) && r != '.' {
-			fmt.Println("5")
+
 			return false
 		}
 		if i > 0 && (*rule)["os_api"][i-1] == '.' && r == '.' {
-			fmt.Println("6")
+
 			return false
 		}
 	}
 	for _, r := range (*rule)["aid"] {
 		if !unicode.IsDigit(r) {
-			fmt.Println("7")
+
 			return false
 		}
 	}

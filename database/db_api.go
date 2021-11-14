@@ -22,7 +22,7 @@ const UPDATETIME = 5
 func checkErr(err error) {
 	if err != nil {
 		tools.LogfMsg("checkErr:%v\n", err)
-		fmt.Printf("checkErr:%v\n", err)
+		// fmt.Printf("checkErr:%v\n", err)
 	}
 }
 
@@ -85,8 +85,8 @@ func ToInt(intObj interface{}) int {
 			return intv
 		}
 	}
-	fmt.Printf(fmt.Sprintf("ToInt err, %v, %v not supportted\n", intObj,
-		reflect.TypeOf(intObj).Kind()))
+	// fmt.Printf(fmt.Sprintf("ToInt err, %v, %v not supportted\n", intObj,
+	// reflect.TypeOf(intObj).Kind()))
 	tools.LogfMsg("ToInt err, %v, %v not supportted\n", intObj,
 		reflect.TypeOf(intObj).Kind())
 	return 0
@@ -144,15 +144,15 @@ func QueryAllRules() (*[]map[string]string, error) {
 func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 	res, devices, err := RedisQueryRuleByID(ruleid)
 	if err != nil || len(*res) == 0 {
-		fmt.Println(res)
-		tools.LogMsg(err)
+		// fmt.Println(res)
+		// tools.LogMsg(err)
 	} else {
 		return res, devices, err
 	}
-	fmt.Println("Redis not found, query mysql next...")
+	// fmt.Println("Redis not found, query mysql next...")
 	res, devices, err = MysqlQueryRules(ruleid)
 	if err != nil || len(*res) == 0 {
-		fmt.Println("Wrong ID!")
+		// fmt.Println("Wrong ID!")
 		tools.LogMsg("Wrong ID!")
 		return res, devices, err
 	}
@@ -162,11 +162,11 @@ func QueryRuleByID(ruleid string) (*[]map[string]string, *[]string, error) {
 
 //提供一个 string-string 的哈希表和白名单，向 mysql 添加规则。
 func AddRule(rulemap *map[string]string, devicelst *[]string) error {
-	fmt.Println(rulemap, devicelst)
+	// fmt.Println(rulemap, devicelst)
 	id, err := MysqlAddRule(rulemap, devicelst)
 	checkErr(err)
-	fmt.Printf("!!")
-	fmt.Println(id)
+	// fmt.Printf("!!")
+	// fmt.Println(id)
 	err = RedisUpdateRule(ToStr(id), rulemap, devicelst)
 	checkErr(err)
 	return err
@@ -180,7 +180,7 @@ func UpdateRule(rulemap *map[string]string, devicelst *[]string) error {
 	// if tools.JudgeLegalRule(rulemap) == false {
 	// 	return errors.New("Rule is not legal!")
 	// }
-	fmt.Println(rulemap, devicelst)
+	// fmt.Println(rulemap, devicelst)
 	err := RedisUpdateRule((*rulemap)["id"], rulemap, devicelst)
 	checkErr(err)
 	err = MysqlUpdateRule(rulemap, devicelst)

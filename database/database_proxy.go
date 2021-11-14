@@ -1,5 +1,7 @@
 package database
 
+import "strings"
+
 func qrnGetSObj() (*[]map[string]string, *[]string, error) {
 	mp := []map[string]string{{
 		"min_update_version_code": "8.4.0",
@@ -27,25 +29,27 @@ type QueryObj interface {
 }
 
 type RuleObj struct {
-	Initialed bool
+	initialed bool
+	oldrule   string
 	Rule      *map[string]string
 	White     *[]string
 }
 
 func (r *RuleObj) GetRuleAtt(ruleid string, field string) (string, error) {
-	if !r.Initialed {
+	if !r.initialed || strings.Compare(r.oldrule, ruleid) != 0 {
 		e := r.InitRuleObj(ruleid)
 		if e != nil {
 			return "", e
 		}
-		r.Initialed = true
+		r.initialed = true
+		r.oldrule = ruleid
 	}
 	return (*r.Rule)[field], nil
 }
 
 func (r *RuleObj) InitRuleObj(ruleid string) error {
-	// a, w, e := QueryRuleByID(ruleid)
-	a, w, e := qrnGetSObj()
+	a, w, e := QueryRuleByID(ruleid)
+	// a, w, e := qrnGetSObj()
 	if e != nil {
 		return e
 	}

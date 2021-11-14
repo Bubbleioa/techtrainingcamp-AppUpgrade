@@ -6,12 +6,15 @@ import (
 	"strconv"
 	"strings"
 	"techtrainingcamp-AppUpgrade/database"
-	_ "techtrainingcamp-AppUpgrade/model"
 	"techtrainingcamp-AppUpgrade/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 )
+
+func Pong(c *gin.Context) {
+	c.JSON(200, gin.H{"message": "pong"})
+}
 
 // @title    qrnVersionComp
 // @description   用于比较两个字符串类型的版本号
@@ -140,13 +143,12 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 	var respRuleId string
 	for index := 0; index < len(*idList); index++ {
 		ruleid := (*idList)[index]
-		qres, _, _ := database.QueryRuleByID(ruleid)
-		res := (*qres)[0]
-		isEnabled, _ := res["enabled"]
+
+		qObj := database.RuleObj{}
+		isEnabled, _ := qObj.GetRuleAtt(ruleid, "enabled")
 		if !cast.ToBool(isEnabled) {
 			continue
 		}
-		qObj := database.RuleObj{false, nil, nil}
 		ruleAid, _ := qObj.GetRuleAtt(ruleid, "aid")
 		rulePlatform, _ := qObj.GetRuleAtt(ruleid, "platform")
 		ruleCpuArch, _ := qObj.GetRuleAtt(ruleid, "cpu_arch")
@@ -156,7 +158,6 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 		ruleMaxOsApi, _ := qObj.GetRuleAtt(ruleid, "max_os_api")
 		ruleMinUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "min_update_version_code")
 		ruleMaxUpdateVersionCode, _ := qObj.GetRuleAtt(ruleid, "max_update_version_code")
-
 		if strings.Compare(aid, ruleAid) == 0 &&
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
 			strings.Compare(channel, ruleChannel) == 0 {

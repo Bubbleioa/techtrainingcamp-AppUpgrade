@@ -27,7 +27,7 @@ func OpenMysql() error {
 	}
 	if err != nil {
 		tools.LogMsg("数据库链接错误", err)
-		fmt.Println("数据库链接错误", err)
+		// fmt.Println("数据库链接错误", err)
 	}
 	//延迟到函数结束关闭链接
 	//defer db.Close()
@@ -143,7 +143,7 @@ func RowsToMap(rows *sql.Rows) *[]map[string]string {
 				rowResult[colName] = ToInt(colVal)
 
 			case TimeKind:
-				fmt.Println("time", colVal, reflect.TypeOf(colVal))
+				// fmt.Println("time", colVal, reflect.TypeOf(colVal))
 				rowResult[colName] = ToStr(colVal)
 			default:
 				rowResult[colName] = ToStr(colVal)
