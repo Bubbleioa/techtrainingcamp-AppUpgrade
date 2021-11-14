@@ -33,11 +33,15 @@ func RedisClose() {
 func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 	//RedisInitClient()
 	//defer rdb.Close()
-	err := rdb.HIncrBy(ctx, ruleid, "hit_count", 1).Err()
-	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
+	hits, err := rdb.HGet(ctx, ruleid, "hit_count").Result()
+	hits = ToStr(ToInt(hits) + 1)
+	err = rdb.HSet(ctx, ruleid, "hit_count", hits).Err()
 	if status {
-		err = rdb.HIncrBy(ctx, ruleid, "download_count", 1).Err()
+		downs, _ := rdb.HGet(ctx, ruleid, "download_count").Result()
+		downs = ToStr(ToInt(downs) + 1)
+		rdb.HSet(ctx, ruleid, "download_count", downs)
 	}
+	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
 	return err
 }
 
@@ -124,6 +128,10 @@ func RedisCheckWhiteList(ruleid string, userid string) (bool, error) {
 	//defer rdb.Close()
 	//pipe := rdb.TxPipeline()
 	val, err := rdb.SIsMember(ctx, ruleid+"s", userid).Result()
+	res, err := rdb.Exists(ctx, ruleid+"s").Result()
+	if res == 0 {
+		err = errors.New("ruleid doesn't exist!")
+	}
 	//pipe.Expire(ctx, ruleid+"s", EPTIME*time.Second)
 	//pipe.Expire(ctx, ruleid, EPTIME*time.Second)
 	return val, err
