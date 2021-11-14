@@ -13,28 +13,31 @@ import (
 func VersionCmp(a string, b string) int {
 	arr1 := strings.Split(a, ".")
 	arr2 := strings.Split(b, ".")
+	res1 := make([]int, len(arr1))
+	res2 := make([]int, len(arr2))
+
 	for index := 0; index < len(arr1); index++ {
 		intTemp, err := strconv.Atoi(arr1[index])
 		if err != nil {
 			log.Panic(err.Error())
 		}
-		arr1[index] = strconv.Itoa(intTemp)
+		res1[index] = intTemp
 	}
 	for index := 0; index < len(arr2); index++ {
 		intTemp, err := strconv.Atoi(arr2[index])
 		if err != nil {
 			log.Panic(err.Error())
 		}
-		arr2[index] = strconv.Itoa(intTemp)
+		res2[index] = intTemp
 	}
 	arrLen := len(arr2)
 	if len(arr1) < len(arr2) {
 		arrLen = len(arr1)
 	}
 	for index := 0; index < arrLen; index++ {
-		if strings.Compare(arr1[index], arr2[index]) < 0 {
+		if res1[index] < res2[index] {
 			return -1
-		} else if strings.Compare(arr1[index], arr2[index]) > 0 {
+		} else if res1[index] > res2[index] {
 			return 1
 		}
 	}
