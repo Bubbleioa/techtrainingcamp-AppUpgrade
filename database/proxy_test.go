@@ -12,7 +12,7 @@ func TestGetRuleAttr(t *testing.T) {
 		{input: "download_url", expect: "https://baidu1.com"},
 	}
 
-	qObj := RuleObj{false, nil, nil}
+	qObj := RuleObj{}
 
 	for _, v := range testCases {
 		s, _ := qObj.GetRuleAtt(v.input, v.input)

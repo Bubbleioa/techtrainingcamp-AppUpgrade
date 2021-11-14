@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"fmt"
+	_ "fmt"
 	"net/http"
 	"techtrainingcamp-AppUpgrade/database"
 	"techtrainingcamp-AppUpgrade/tools"
@@ -100,7 +100,7 @@ func CreateRule(c *gin.Context) {
 	mp := make(map[string]interface{})
 	c.BindJSON(&mp)
 	mm, lst, e := tools.ResolveJsonRuleData(&mp, true)
-	fmt.Println(mm, lst, e)
+	// fmt.Println(mm, lst, e)
 	if e != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"messgae": "Illegal rule data"})
 	}

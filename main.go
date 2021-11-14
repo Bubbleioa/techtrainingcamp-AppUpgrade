@@ -28,9 +28,16 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 	r := gin.Default()
+	// srv := &http.Server{
+	// 	Addr:         ":8080",
+	// 	Handler:      r,
+	// 	ReadTimeout:  3 * time.Second,
+	// 	WriteTimeout: 3 * time.Second,
+	// }
 	customizeouter(r)
+	// go srv.ListenAndServe()
+	// endless.ListenAndServe(":8080", r)
 	go r.Run(":8080")
-
 	r2 := gin.Default()
 	if os.Getenv("IS_DOCKER") == "1" {
 		r2.LoadHTMLGlob("/root/public/index.html")
@@ -40,7 +47,9 @@ func main() {
 	}
 	adminRouter(r2)
 	r2.Run(":11451")
-	//time.Sleep(20 * time.Second)
-	//panic("NO!!!!!")
+
+	// time.Sleep(50 * time.Second)
+	// panic("qaq")
+
 	//r2.Run(":11451")
 }
