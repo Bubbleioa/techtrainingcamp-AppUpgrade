@@ -42,6 +42,7 @@ func RedisUpdateDownloadStatus(ruleid string, status bool) error {
 		rdb.HSet(ctx, ruleid, "download_count", downs)
 	}
 	rdb.Expire(ctx, ruleid, EPTIME*time.Second)
+        rdb.Expire(ctx, ruleid+"s", EPTIME*time.Second)
 	return err
 }
 
