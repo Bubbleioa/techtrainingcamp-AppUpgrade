@@ -314,6 +314,10 @@
                 }
                 // console.log($(e).attr("name") + " " + e.value)
             })
+            if (data["platform"].toLowerCase() == "ios") {
+                data["min_os_api"] = 0
+                data["max_os_api"] = 0
+            }
             // $("input").forEach(e => {
             //     console.log(e)
             // })
