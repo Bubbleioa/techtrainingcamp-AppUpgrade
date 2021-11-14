@@ -146,15 +146,15 @@ func JudgeLegalRule(rule *map[string]string) bool {
 		LogfMsg("invalid update version code %v", vcode3)
 		return false
 	}
-	vcode4 := (*rule)["min_os_api"]
-	if !reg.MatchString(vcode4) {
-		LogfMsg("invalid update version code %v", vcode4)
-		return false
+	for _, r := range (*rule)["min_os_api"] {
+		if !unicode.IsDigit(r) {
+			return false
+		}
 	}
-	vcode5 := (*rule)["max_os_api"]
-	if !reg.MatchString(vcode5) {
-		LogfMsg("invalid update version code %v", vcode5)
-		return false
+	for _, r := range (*rule)["max_os_api"] {
+		if !unicode.IsDigit(r) {
+			return false
+		}
 	}
 	// for i, r := range (*rule)["update_version_code"] {
 	// 	if !unicode.IsDigit(r) && r != '.' {
@@ -216,19 +216,33 @@ func JudgeLegalRule(rule *map[string]string) bool {
 	// 		return false
 	// 	}
 	// }
-	if ((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] != "" &&
-		VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1) ||
-		((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "") ||
-		((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != "") {
+	//if ((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] != "" &&
+	//	VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) == 1) ||
+	//	((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] == "") ||
+	//	((*rule)["min_update_version_code"] == "" && (*rule)["max_update_version_code"] != "") {
+	//	LogMsg("更新版本範圍有誤")
+	//
+	//	return false
+	//}
+	if !((*rule)["min_update_version_code"] != "" && (*rule)["max_update_version_code"] != "" &&
+		VersionCmp((*rule)["min_update_version_code"], (*rule)["max_update_version_code"]) <= 0) {
 		LogMsg("更新版本範圍有誤")
 
 		return false
 	}
-	LogfMsg("%v %v %v", (*rule)["min_os_api"], (*rule)["max_os_api"], VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]))
-	if ((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] != "" &&
-		VersionCmp((*rule)["min_os_api"], (*rule)["max_os_api"]) == 1) ||
-		((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] == "") ||
-		((*rule)["min_os_api"] == "" && (*rule)["max_os_api"] != "") {
+	//LogfMsg("%v %v %v", (*rule)["min_os_api"], (*rule)["max_os_api"], strings.Compare((*rule)["min_os_api"], (*rule)["max_os_api"]))
+	//if ((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] != "" &&
+	//	strings.Compare((*rule)["min_os_api"], (*rule)["max_os_api"]) > 0) ||
+	//	((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] == "") ||
+	//	((*rule)["min_os_api"] == "" && (*rule)["max_os_api"] != "") {
+	//	LogMsg("不符合的api")
+	//
+	//	return false
+	//}
+	min_os,_ := strconv.Atoi((*rule)["min_os_api"])
+	max_os,_ := strconv.Atoi((*rule)["max_os_api"])
+	if !((*rule)["min_os_api"] != "" && (*rule)["max_os_api"] != "" &&
+		min_os <= max_os ) {
 		LogMsg("不符合的api")
 
 		return false
@@ -248,22 +262,14 @@ func JudgeAppData(rule *map[string]string) bool {
 
 		return false
 	}
-	for i, r := range (*rule)["update_version_code"] {
-		if !unicode.IsDigit(r) && r != '.' {
-
-			return false
-		}
-		if i > 0 && (*rule)["update_version_code"][i-1] == '.' && r == '.' {
-
-			return false
-		}
+	reg := regexp.MustCompile(`^\d+(\.\d+)*$`)
+	vcode1 := (*rule)["update_version_code"]
+	if !reg.MatchString(vcode1) {
+		LogfMsg("invalid update version code %v", vcode1)
+		return false
 	}
-	for i, r := range (*rule)["os_api"] {
-		if !unicode.IsDigit(r) && r != '.' {
-
-			return false
-		}
-		if i > 0 && (*rule)["os_api"][i-1] == '.' && r == '.' {
+	for _, r := range (*rule)["os_api"] {
+		if !unicode.IsDigit(r) {
 
 			return false
 		}
