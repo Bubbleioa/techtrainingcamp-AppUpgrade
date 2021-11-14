@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"strings"
 	"techtrainingcamp-AppUpgrade/tools"
-	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -125,12 +124,13 @@ func GetRuleAtt(ruleid string, field string) (string, error) {
 func UpdateUserDownloadStatus(ruleid string, status bool) error {
 	err := RedisUpdateDownloadStatus(ruleid, status)
 	checkErr(err)
-	if time.Now().Unix()-timecnt > UPDATETIME {
-		timecnt = time.Now().Unix()
-		val, wls, _ := RedisQueryRuleByID(ruleid)
-		(*val)[0]["id"] = ruleid
-		MysqlUpdateRule(&(*val)[0], wls)
-	}
+	AddHitCnt(UpdCnt{ruleid, status})
+	// if time.Now().Unix()-timecnt > UPDATETIME {
+	// 	timecnt = time.Now().Unix()
+	// 	val, wls, _ := RedisQueryRuleByID(ruleid)
+	// 	(*val)[0]["id"] = ruleid
+	// 	MysqlUpdateRule(&(*val)[0], wls)
+	// }
 	return err
 }
 
