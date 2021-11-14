@@ -161,11 +161,11 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
 			strings.Compare(channel, ruleChannel) == 0 {
 			if isDeviceIDValue {
-				respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
-				respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
-				respMd5, _ = database.GetRuleAtt(ruleid, "md5")
-				respTitle, _ = database.GetRuleAtt(ruleid, "title")
-				respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+				respUrl, _ = qObj.GetRuleAtt(ruleid, "download_url")
+				respUpdateVersionCode, _ = qObj.GetRuleAtt(ruleid, "update_version_code")
+				respMd5, _ = qObj.GetRuleAtt(ruleid, "md5")
+				respTitle, _ = qObj.GetRuleAtt(ruleid, "title")
+				respUpdateTips, _ = qObj.GetRuleAtt(ruleid, "update_tips")
 				break
 			} else {
 				if cast.ToInt(osApi) >= cast.ToInt(ruleMinOsApi) &&
@@ -173,11 +173,11 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 					tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
 					tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 &&
 					strings.Compare(cpuArch, ruleCpuArch) == 0 {
-					respUrl, _ = database.GetRuleAtt(ruleid, "download_url")
-					respUpdateVersionCode, _ = database.GetRuleAtt(ruleid, "update_version_code")
-					respMd5, _ = database.GetRuleAtt(ruleid, "md5")
-					respTitle, _ = database.GetRuleAtt(ruleid, "title")
-					respUpdateTips, _ = database.GetRuleAtt(ruleid, "update_tips")
+					respUrl, _ = qObj.GetRuleAtt(ruleid, "download_url")
+					respUpdateVersionCode, _ = qObj.GetRuleAtt(ruleid, "update_version_code")
+					respMd5, _ = qObj.GetRuleAtt(ruleid, "md5")
+					respTitle, _ = qObj.GetRuleAtt(ruleid, "title")
+					respUpdateTips, _ = qObj.GetRuleAtt(ruleid, "update_tips")
 					break
 				}
 			}
