@@ -162,6 +162,7 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 			strings.Compare(devicePlatform, rulePlatform) == 0 &&
 			strings.Compare(channel, ruleChannel) == 0 {
 			if isDeviceIDValue {
+				respRuleId = ruleid
 				respUrl, _ = qObj.GetRuleAtt(ruleid, "download_url")
 				respUpdateVersionCode, _ = qObj.GetRuleAtt(ruleid, "update_version_code")
 				respMd5, _ = qObj.GetRuleAtt(ruleid, "md5")
@@ -174,6 +175,7 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 					tools.VersionCmp(updateVersionCode, ruleMinUpdateVersionCode) != -1 &&
 					tools.VersionCmp(updateVersionCode, ruleMaxUpdateVersionCode) != 1 &&
 					strings.Compare(cpuArch, ruleCpuArch) == 0 {
+					respRuleId = ruleid
 					respUrl, _ = qObj.GetRuleAtt(ruleid, "download_url")
 					respUpdateVersionCode, _ = qObj.GetRuleAtt(ruleid, "update_version_code")
 					respMd5, _ = qObj.GetRuleAtt(ruleid, "md5")
@@ -224,10 +226,12 @@ func judgeLogic(idList *[]string, deviceId string, aid string, devicePlatform st
 func Count(c *gin.Context) {
 	ruleId := c.Query("ruleid")
 	isDownload := c.Query("download")
+	var err error
 	if cast.ToInt(isDownload) == 1 {
-		_ = database.UpdateUserDownloadStatus(ruleId, true)
+		err = database.UpdateUserDownloadStatus(ruleId, true)
 	} else {
-		_ = database.UpdateUserDownloadStatus(ruleId, false)
+		err = database.UpdateUserDownloadStatus(ruleId, false)
 	}
+	tools.LogMsg(err)
 	c.JSON(200, gin.H{})
 }

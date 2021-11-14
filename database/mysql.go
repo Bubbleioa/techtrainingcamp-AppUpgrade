@@ -6,11 +6,18 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
+	"sync/atomic"
 	"techtrainingcamp-AppUpgrade/tools"
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+type UpdCnt struct {
+	Id      string
+	Success bool
+}
 
 var db *sql.DB
 
@@ -192,5 +199,50 @@ func MysqlQueryRules(ruleid string) (*[]map[string]string, *[]string, error) {
 		rowsmap := RowsToMap(dbrows)
 		s := strings.Split((*rowsmap)[0]["device_list"], ",")
 		return rowsmap, &s, err
+	}
+}
+
+var AddLst []int32 = make([]int32, 1000)
+var HitLst []int32 = make([]int32, 1000)
+
+func AddHitCnt(c UpdCnt) {
+	i, _ := strconv.Atoi(c.Id)
+	atomic.AddInt32(&HitLst[i], 1)
+	if c.Success {
+		atomic.AddInt32(&AddLst[i], 1)
+	}
+}
+
+func CommitAll() {
+	tx, err := db.Begin()
+	if err != nil {
+		tools.LogMsg(err)
+		return
+	}
+	for i, v := range AddLst {
+		if v > 0 {
+			qStr := "UPDATE rules SET download_count = download_count + ? WHERE id = ?"
+			_, err := tx.Exec(qStr, v, i)
+			if err != nil {
+				_ = tx.Rollback()
+				tools.LogMsg(err)
+			}
+		}
+		atomic.StoreInt32(&AddLst[i], 0)
+	}
+	for i, v := range HitLst {
+		if v > 0 {
+			qStr := "UPDATE rules SET hit_count = hit_count + ? WHERE id = ?"
+			_, err := tx.Exec(qStr, v, i)
+			if err != nil {
+				_ = tx.Rollback()
+				tools.LogMsg(err)
+			}
+		}
+		atomic.StoreInt32(&HitLst[i], 0)
+	}
+	e := tx.Commit()
+	if e != nil {
+		tools.LogMsg(err)
 	}
 }

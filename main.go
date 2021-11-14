@@ -6,6 +6,7 @@ import (
 	"runtime/pprof"
 	"techtrainingcamp-AppUpgrade/database"
 	"techtrainingcamp-AppUpgrade/tools"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,15 @@ import (
 func main() {
 	tools.Init()
 
+	ticker := time.NewTicker(5 * time.Second)
+	go func() {
+		for {
+			<-ticker.C
+			database.CommitAll()
+		}
+	}()
+
+	defer ticker.Stop()
 	database.RedisInitClient()
 	database.OpenMysql()
 	defer database.RedisClose()
